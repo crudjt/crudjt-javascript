@@ -25,6 +25,11 @@ extern {
     pub fn __update(token: *const c_char, data: *const u8, len: usize, ttl: i64, silence_read: i32) -> *const c_int;
 }
 
+#[link(name = "store_jt")]
+extern {
+    pub fn __delete(key: *const std::os::raw::c_char) -> *const c_int;
+}
+
 fn call_encrypted_key(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let key = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_key = CString::new(key).expect("Failed to create CString");
@@ -95,12 +100,25 @@ fn update_function(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     }
 }
 
+fn call_delete(mut cx: FunctionContext) -> JsResult<JsBoolean> {
+    let token = cx.argument::<JsString>(0)?.value(&mut cx);
+    let c_token = CString::new(token).expect("Failed to create CString");
+
+    unsafe {
+        let output: *const c_int = __delete(c_token.as_ptr());
+        let bool: bool = output as usize == 1;
+
+        Ok(cx.boolean(bool))
+    }
+}
+
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("encrypted_key", call_encrypted_key)?;
     cx.export_function("create", create_function)?;
     cx.export_function("read", read_function)?;
     cx.export_function("update", update_function)?;
+    cx.export_function("delete", call_delete)?;
 
     Ok(())
 }

@@ -35,7 +35,7 @@ function update(token, hash, ttl = -1, silence_read = -1) {
   const buffer = Buffer.alloc(packed_data.length);
   packed_data.copy(buffer);
 
-  // Call native function create, passing it a pointer and the size of the data
+  // Call native function update, passing it a pointer and the size of the data
   return native.update(token, buffer, packed_data.length, ttl, silence_read);
 }
 
@@ -43,6 +43,7 @@ const CRUD_JT = {
     create,
     read,
     update,
+    delete: native.delete,
     encrypted_key: native.encrypted_key
 };
 
@@ -53,6 +54,9 @@ console.log(token);
 console.log(CRUD_JT.read(token));
 
 console.log(CRUD_JT.update(token, { qwe: 12313 }));
-console.log(token);
+console.log(CRUD_JT.read(token));
+
+console.log(CRUD_JT.delete(token));
+console.log(CRUD_JT.read(token));
 
 module.exports = CRUD_JT;
