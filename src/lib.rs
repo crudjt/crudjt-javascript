@@ -15,6 +15,16 @@ extern {
     pub fn __create(data: *const u8, len: usize, ttl: i64, silence_read: i32) -> *const c_char;
 }
 
+#[link(name = "store_jt")]
+extern {
+    pub fn __read(token: *const c_char) -> *const c_char;
+}
+
+#[link(name = "store_jt")]
+extern {
+    pub fn __update(token: *const c_char, data: *const u8, len: usize, ttl: i64, silence_read: i32) -> *const c_int;
+}
+
 fn call_encrypted_key(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let key = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_key = CString::new(key).expect("Failed to create CString");
@@ -48,10 +58,49 @@ fn create_function(mut cx: FunctionContext) -> JsResult<JsString> {
     }
 }
 
+fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
+    let token = cx.argument::<JsString>(0)?.value(&mut cx);
+    let c_token = CString::new(token).expect("Failed to create CString");
+
+    unsafe {
+        let result: *const c_char = __read(c_token.as_ptr());
+        let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
+
+        Ok(cx.string(result_str))
+    }
+}
+
+fn update_function(mut cx: FunctionContext) -> JsResult<JsBoolean> {
+    let token = cx.argument::<JsString>(0)?.value(&mut cx);
+    let c_token = CString::new(token).expect("Failed to create CString");
+
+    let js_buffer = cx.argument::<JsBuffer>(1)?;
+    let data_size = cx.argument::<JsNumber>(2)?;
+    let data_usize = data_size.value(&mut cx) as usize;
+
+    let ttl = cx.argument::<JsNumber>(3)?;
+    let silence_read = cx.argument::<JsNumber>(4)?;
+
+    let ttl_int = ttl.value(&mut cx) as i64;
+    let silence_read_int = silence_read.value(&mut cx) as i32;
+
+    let data = js_buffer.as_slice(&cx);
+    let data_ptr: *const u8 = data.as_ptr();
+
+    unsafe {
+        let output: *const c_int = __update(c_token.as_ptr(), data_ptr, data_usize, ttl_int, silence_read_int);
+        let bool: bool = output as usize == 1;
+
+        Ok(cx.boolean(bool))
+    }
+}
+
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("encrypted_key", call_encrypted_key)?;
     cx.export_function("create", create_function)?;
+    cx.export_function("read", read_function)?;
+    cx.export_function("update", update_function)?;
 
     Ok(())
 }
