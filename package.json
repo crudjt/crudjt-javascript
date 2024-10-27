@@ -19,6 +19,6 @@
     "@neon-rs/cli": "0.1.73"
   },
   "dependencies": {
-    "msgpack5": "^6.0.2"
+    "msgpack-lite": "^0.1.26"
   }
 }
