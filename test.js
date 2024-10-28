@@ -164,7 +164,7 @@ async function main() {
     }
 
     // Коли кеш після w з файлової системи
-    console.log('when caches after w from file system');
+    console.log('when caches after read from file system');
 
     const ttlGH = 2;
 
