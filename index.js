@@ -2,10 +2,13 @@ const native = require('.'); // Require the compiled native module
 const msgpack = require('msgpack-lite');
 const { Buffer } = require('buffer');
 const LRUCache = require('./Cache');
+const Validation = require('./Validation');
 
 const lruLRUCache = new LRUCache((value) => native.read(value));
 
 function create(hash, ttl = -1, silence_read = -1) {
+    Validation.validateInsertion(hash, ttl, silence_read);
+
     // Serialize hash into the format Msgpack
     const packedData = msgpack.encode(hash);
 
@@ -17,6 +20,8 @@ function create(hash, ttl = -1, silence_read = -1) {
 }
 
 function read(token) {
+  Validation.validateToken(token);
+
   let output = lruLRUCache.get(token);
   if (output) {
     return output
@@ -34,6 +39,9 @@ function read(token) {
 }
 
 function update(token, hash, ttl = -1, silence_read = -1) {
+  Validation.validateToken(token);
+  Validation.validateInsertion(hash, ttl, silence_read);
+
   // Serialize hash into the format Msgpack
   const packedData = msgpack.encode(hash);
 
@@ -47,6 +55,8 @@ function update(token, hash, ttl = -1, silence_read = -1) {
 }
 
 function __delete(token) {
+  Validation.validateToken(token);
+
   lruLRUCache.delete(token);
 
   return native.delete(token);
