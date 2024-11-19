@@ -26,14 +26,10 @@ jobs:
         run: |
           npm install
 
-      # Створення символічного посилання на основний проєкт у тестовому пакеті
-      - name: Link main project in test package
-        run: |
-          mkdir -p test-neon-package/node_modules
-          ln -s pwd ./test-neon-package/node_modules/crud_jt
-
       # Запуск тестів
       - name: Run tests
         working-directory: ./test-neon-package
         run: |
+          mkdir node_modules
+          ln -s $(pwd | sed 's/\/[^/]*$//') node_modules/crud_jt
           node test.js
