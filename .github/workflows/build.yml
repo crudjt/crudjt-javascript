@@ -29,10 +29,14 @@ jobs:
       # Створення символічного посилання на основний проєкт у тестовому пакеті
       - name: Link main project in test package
         run: |
+          mkdir -p $GITHUB_WORKSPACE/test-neon-package/node_modules
           ln -s $GITHUB_WORKSPACE $GITHUB_WORKSPACE/test-neon-package/node_modules/crud_jt
 
       # Запуск тестів
       - name: Run tests
         working-directory: $GITHUB_WORKSPACE/test-neon-package
         run: |
+          pwd
+          ls
+          ls node_modules
           node test.js
