@@ -30,10 +30,10 @@ jobs:
       - name: Link main project in test package
         run: |
           mkdir -p test-neon-package/node_modules
-          ln -s pwd test-neon-package/node_modules/crud_jt
+          ln -s pwd ./test-neon-package/node_modules/crud_jt
 
       # Запуск тестів
       - name: Run tests
-        working-directory: /test-neon-package
+        working-directory: ./test-neon-package
         run: |
           node test.js
