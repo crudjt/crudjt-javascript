@@ -1,0 +1,38 @@
+name: Build and Test Node.js Library
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # Крок для отримання коду з репозиторію
+      - uses: actions/checkout@v4
+
+      # Налаштування Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '12'
+
+      - name: Install and build dependencies
+        run: |
+          npm install
+
+      # Створення символічного посилання на основний проєкт у тестовому пакеті
+      - name: Link main project in test package
+        run: |
+          ln -s $GITHUB_WORKSPACE $GITHUB_WORKSPACE/test-neon-package/node_modules/crud_jt
+
+      # Запуск тестів
+      - name: Run tests
+        working-directory: $GITHUB_WORKSPACE/test-neon-package
+        run: |
+          node test.js

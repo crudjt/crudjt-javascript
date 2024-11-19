@@ -1,8 +1,8 @@
 {
-  "name": "my-project",
+  "name": "crud_jt",
   "version": "0.1.0",
   "description": "",
-  "main": "index.node",
+  "main": "index.js",
   "scripts": {
     "test": "cargo test",
     "cargo-build": "cargo build --message-format=json-render-diagnostics > cargo.log",
