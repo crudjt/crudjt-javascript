@@ -28,7 +28,7 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
 
     // Шлях до оригінальної dylib бібліотеки
-    let dylib_path = PathBuf::from("native/libstore_jt.dylib");
+    let dylib_path = PathBuf::from("native/windows/arm64/libstore_jt.dll");
 
     // // Копіюємо dylib бібліотеку в вихідну директорію
     // fs::copy(&dylib_path, out_dir.join("libstore_jt.dylib"))

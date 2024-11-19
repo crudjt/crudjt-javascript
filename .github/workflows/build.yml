@@ -9,8 +9,10 @@ jobs:
         include:
           # - os: ubuntu-latest
           #   arch: x86_64
-          - os: macos-latest
-            arch: aarch64
+          # - os: macos-latest
+          #   arch: aarch64
+          - os: windows-latest
+            arch: x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -26,6 +28,7 @@ jobs:
 
       - name: Install and build dependencies
         run: |
+          npm run cargo-build -- --release
           npm install
 
       # Запуск тестів
@@ -33,5 +36,5 @@ jobs:
         working-directory: ./test-neon-package
         run: |
           mkdir node_modules
-          ln -s $(pwd | sed 's/\/[^/]*$//') node_modules/crud_jt
+          cmd.exe /c mklink /D "node_modules\crud_jt" "D:\a\crud_jt-javascript\crud_jt-javascript"
           node test.js
