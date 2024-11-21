@@ -5,7 +5,6 @@ const fs = require('fs');
 const { promisify } = require('util');
 const sleep = promisify(setTimeout);
 
-
 const os = require('os');
 const path = require('path');
 
@@ -112,10 +111,10 @@ function getTargetPath() {
 }
 ///
 
-const sourcePath = getSourcePath();
-const targetPath = getTargetPath();
-
-copyFileWithCheck(sourcePath, targetPath);
+// const sourcePath = getSourcePath();
+// const targetPath = getTargetPath();
+//
+// copyFileWithCheck(sourcePath, targetPath);
 
 const native = require('.'); // Require the compiled native module
 const msgpack = require('msgpack-lite');

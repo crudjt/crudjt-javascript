@@ -1,39 +1,48 @@
 use std::env;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn main() {
-    // let manifest_dir = env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR");
+    // // Отримуємо шлях до кореня проєкту
+    // let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     //
-    // let target_os = env::var("CARGO_CFG_TARGET_OS").expect("Failed to get target OS");
-    // let target_arch = env::var("CARGO_CFG_TARGET_ARCH").expect("Failed to get target architecture");
+    // // Шлях до вашої .dylib бібліотеки
+    // let dylib_dir = manifest_dir.join("native/macos/x86_64/");
+    // let dylib_path = dylib_dir.join("libstore_jt.dylib");
     //
-    // let lib_path: PathBuf = match (target_os.as_str(), target_arch.as_str()) {
-    //     ("macos", "x86_64") => PathBuf::from(&manifest_dir).join("native"),
-    //     ("macos", "aarch64") => PathBuf::from(&manifest_dir).join("path/to/macos/aarch64"),
-    //     ("windows", "x86_64") => PathBuf::from(&manifest_dir).join("path/to/windows/x86_64"),
-    //     ("linux", "x86_64") => PathBuf::from(&manifest_dir).join("path/to/linux/x86_64"),
-    //     _ => panic!("Unsupported platform"),
-    // };
+    // // Копіюємо .dylib до output-папки
+    // let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    // let target_path = out_dir.join("libstore_jt.dylib");
     //
-    // println!("cargo:rustc-link-search={}", lib_path.display());
-    // // println!("cargo:rustc-link-lib=store_jt");
+    // // Перевіряємо існування файлу, щоб уникнути помилок
+    // if !dylib_path.exists() {
+    //     panic!(
+    //         "Динамічна бібліотека не знайдена: {}",
+    //         dylib_path.display()
+    //     );
+    // }
     //
-    // // println!(r"cargo:rustc-link-search={}", manifest_dir);
+    // fs::copy(&dylib_path, &target_path).expect("Не вдалося скопіювати бібліотеку");
+    //
+    // // Повідомляємо Cargo, де шукати бібліотеку
+    // println!("cargo:rustc-link-search=native={}", dylib_dir.display());
+    // println!("cargo:rustc-link-lib=dylib=store_jt");
 
-    // println!("cargo:rustc-link-search=./native");
+
+    // let dylib_path = "./native/macos/x86_64/libstore_jt.dylib";
+    // let dest_path = "/usr/local/lib/libstore_jt.dylib";
+    //
+    // // Копіюємо файл у /usr/local/lib
+    // if Path::new(dylib_path).exists() {
+    //     fs::copy(dylib_path, dest_path).expect("Failed to copy dylib to /lib/local/libstore_jt.dylib");
+    //     println!("Library successfully copied to {}", dest_path);
+    // } else {
+    //     eprintln!("Error: Source file does not exist at {}", dylib_path);
+    // }
 
 
-    // Отримуємо вихідну директорію для збирання
-    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-
-    // Шлях до оригінальної dylib бібліотеки
-    let dylib_path = PathBuf::from("native/windows/arm64/libstore_jt.dll");
-
-    // // Копіюємо dylib бібліотеку в вихідну директорію
-    // fs::copy(&dylib_path, out_dir.join("libstore_jt.dylib"))
-    //     .expect("Failed to copy dylib file");
-
-    // Вказуємо шлях для лінкування бібліотеки
-    println!("cargo:rustc-link-search=native={}", out_dir.display());
+    let dylib_path = "./native/linux/x86_64";
+    // println!("cargo:rustc-env=LD_LIBRARY_PATH={}", dylib_path);
+    println!("cargo:rustc-link-search=native={}", dylib_path);
+    // println!("cargo:rustc-link-lib=store_jt");
 }

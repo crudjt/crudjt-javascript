@@ -7,12 +7,12 @@ jobs:
     strategy:
       matrix:
         include:
-          # - os: ubuntu-latest
-          #   arch: x86_64
+          - os: ubuntu-latest
+            arch: x86_64
           # - os: macos-latest
           #   arch: aarch64
-          - os: windows-latest
-            arch: x86_64
+          # - os: windows-latest
+          #   arch: x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -24,17 +24,19 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '12'
+          node-version: '20'
 
       - name: Install and build dependencies
         run: |
-          npm run cargo-build -- --release
           npm install
-
-      # Запуск тестів
-      - name: Run tests
-        working-directory: ./test-neon-package
-        run: |
-          mkdir node_modules
-          cmd.exe /c mklink /D "node_modules\crud_jt" "D:\a\crud_jt-javascript\crud_jt-javascript"
+          npm run cargo-build -- --release
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/native/linux/x86_64
           node test.js
+
+      # # Запуск тестів
+      # - name: Run tests
+      #   working-directory: ./test-neon-package
+      #   run: |
+      #     mkdir node_modules
+      #     ln -s $(pwd | sed 's/\/[^/]*$//') node_modules/crud_jt
+      #     node test.js
