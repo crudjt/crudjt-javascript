@@ -74,7 +74,11 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
             // eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
             return Ok(cx.string(""));
         } else {
-            eprintln!("Function __w returned valid pointer");
+            // Вивести значення вказівника
+            eprintln!(
+                "Function __w returned valid pointer: {:p}",
+                result
+            );
         }
 
         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
