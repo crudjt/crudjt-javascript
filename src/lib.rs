@@ -5,6 +5,8 @@ use neon::prelude::*;
 use neon::types::buffer::TypedArray;
 use std::ptr;
 
+use libc::{free};
+
 #[link(name = "store_jt")]
 extern {
     pub fn encrypted_key(key: *const std::os::raw::c_char);
@@ -116,7 +118,7 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
         };
 
         // Якщо пам'ять виділяється динамічно, звільняємо її
-        // libc::free(result as *mut libc::c_void);
+        libc::free(result as *mut libc::c_void);
 
         Ok(cx.string(result_str))
     }
