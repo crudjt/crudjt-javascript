@@ -109,93 +109,93 @@ async function main() {
     }
     console.log(CRUD_JT.read(tokenWithttlAndsilence_read) === null);
 
-    // З масштабним навантаженням
-    const REQUESTS = 40_000;
-
-    for (let j = 0; j < 10; j++) {
-        let tokens = [];
-        data = {
-            user_id: 414243,
-            role: 11,
-            devices: {
-                ios_expired_at: "new Date().toString()",
-                android_expired_at: "new Date().toString()",
-                mobile_app_expired_at: "new Date().toString()",
-                external_api_integration_expired_at: "new Date().toString()",
-            },
-            a: 42
-        };
-        edData = { user_id: 42, role: 11 };
-
-        console.log('Checking scale load...');
-
-        // Коли q
-        console.log('when creates 40k tokens with Turbo Queue');
-        let start = performance.now();
-        for (let i = 0; i < REQUESTS; i++) {
-            tokens.push(CRUD_JT.create(data));
-        }
-        console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
-
-        // Коли w
-        console.log('when reads 40k tokens');
-        let index = Math.floor(Math.random() * REQUESTS);
-        start = performance.now();
-        for (let i = 0; i < REQUESTS; i++) {
-            CRUD_JT.read(tokens[index]);
-        }
-        console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
-
-        // Коли e
-        console.log('when updates 40k tokens');
-        start = performance.now();
-        for (let i = 0; i < REQUESTS; i++) {
-            CRUD_JT.update(tokens[i], edData);
-        }
-        console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
-
-        // Коли r
-        console.log('when deletes 40k tokens');
-        start = performance.now();
-        for (let i = 0; i < REQUESTS; i++) {
-            CRUD_JT.delete(tokens[i]);
-        }
-        console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
-    }
-
-    // Коли кеш після w з файлової системи
-    console.log('when caches after read from file system');
-
-    const ttlGH = 2;
-
-    data = {
-        user_id: 414243,
-        role: 11,
-        devices: {
-            ios_expired_at: new Date().toString(),
-            android_expired_at: new Date().toString(),
-            mobile_app_expired_at: new Date().toString(),
-            external_api_integration_expired_at: new Date().toString(),
-        },
-        a: 42
-    };
-
-    let previoustokens = [];
-
-    for (let i = 0; i < REQUESTS; i++) {
-        previoustokens.push(CRUD_JT.create(data));
-    }
-    for (let i = 0; i < REQUESTS; i++) {
-        CRUD_JT.create(data);
-    }
-
-    for (let i = 0; i < ttlGH; i++) {
-        let start = performance.now();
-        for (let j = 0; j < REQUESTS; j++) {
-            CRUD_JT.read(previoustokens[j]);
-        }
-        console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
-    }
+    // // З масштабним навантаженням
+    // const REQUESTS = 40_000;
+    //
+    // for (let j = 0; j < 10; j++) {
+    //     let tokens = [];
+    //     data = {
+    //         user_id: 414243,
+    //         role: 11,
+    //         devices: {
+    //             ios_expired_at: "new Date().toString()",
+    //             android_expired_at: "new Date().toString()",
+    //             mobile_app_expired_at: "new Date().toString()",
+    //             external_api_integration_expired_at: "new Date().toString()",
+    //         },
+    //         a: 42
+    //     };
+    //     edData = { user_id: 42, role: 11 };
+    //
+    //     console.log('Checking scale load...');
+    //
+    //     // Коли q
+    //     console.log('when creates 40k tokens with Turbo Queue');
+    //     let start = performance.now();
+    //     for (let i = 0; i < REQUESTS; i++) {
+    //         tokens.push(CRUD_JT.create(data));
+    //     }
+    //     console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
+    //
+    //     // Коли w
+    //     console.log('when reads 40k tokens');
+    //     let index = Math.floor(Math.random() * REQUESTS);
+    //     start = performance.now();
+    //     for (let i = 0; i < REQUESTS; i++) {
+    //         CRUD_JT.read(tokens[index]);
+    //     }
+    //     console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
+    //
+    //     // Коли e
+    //     console.log('when updates 40k tokens');
+    //     start = performance.now();
+    //     for (let i = 0; i < REQUESTS; i++) {
+    //         CRUD_JT.update(tokens[i], edData);
+    //     }
+    //     console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
+    //
+    //     // Коли r
+    //     console.log('when deletes 40k tokens');
+    //     start = performance.now();
+    //     for (let i = 0; i < REQUESTS; i++) {
+    //         CRUD_JT.delete(tokens[i]);
+    //     }
+    //     console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
+    // }
+    //
+    // // Коли кеш після w з файлової системи
+    // console.log('when caches after read from file system');
+    //
+    // const ttlGH = 2;
+    //
+    // data = {
+    //     user_id: 414243,
+    //     role: 11,
+    //     devices: {
+    //         ios_expired_at: new Date().toString(),
+    //         android_expired_at: new Date().toString(),
+    //         mobile_app_expired_at: new Date().toString(),
+    //         external_api_integration_expired_at: new Date().toString(),
+    //     },
+    //     a: 42
+    // };
+    //
+    // let previoustokens = [];
+    //
+    // for (let i = 0; i < REQUESTS; i++) {
+    //     previoustokens.push(CRUD_JT.create(data));
+    // }
+    // for (let i = 0; i < REQUESTS; i++) {
+    //     CRUD_JT.create(data);
+    // }
+    //
+    // for (let i = 0; i < ttlGH; i++) {
+    //     let start = performance.now();
+    //     for (let j = 0; j < REQUESTS; j++) {
+    //         CRUD_JT.read(previoustokens[j]);
+    //     }
+    //     console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
+    // }
 }
 
 // Викликаємо основну функцію

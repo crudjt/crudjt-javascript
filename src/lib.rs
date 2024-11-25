@@ -83,7 +83,7 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
 
         // Перевірка на "особливі" значення
         if result as usize == usize::MAX {
-            eprintln!("Function __w returned invalid pointer: {:p}", result);
+            // eprintln!("Function __w returned invalid pointer: {:p}", result);
             return Ok(cx.string(""));
         }
 
