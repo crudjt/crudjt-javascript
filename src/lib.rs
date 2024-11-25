@@ -63,6 +63,36 @@ fn create_function(mut cx: FunctionContext) -> JsResult<JsString> {
     }
 }
 
+// fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
+//     let token = cx.argument::<JsString>(0)?.value(&mut cx);
+//     let c_token = CString::new(token).expect("Failed to create CString");
+//
+//     unsafe {
+//         let result = __read(c_token.as_ptr());
+//
+//         // if result.is_null() {
+//         //     // eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
+//         //     return Ok(cx.string(""));
+//         // } else {
+//         //     // Вивести значення вказівника
+//         //     eprintln!(
+//         //         "Function __w returned valid pointer: {:p}",
+//         //         result
+//         //     );
+//         // }
+//
+//         // Перевірка на "особливі" значення
+//         if result as usize == usize::MAX {
+//             // eprintln!("Function __w returned invalid pointer: {:p}", result);
+//             return Ok(cx.string(""));
+//         }
+//
+//         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
+//
+//         Ok(cx.string(result_str))
+//     }
+// }
+
 fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
     let token = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_token = CString::new(token).expect("Failed to create CString");
@@ -70,28 +100,28 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
     unsafe {
         let result = __read(c_token.as_ptr());
 
-        // if result.is_null() {
-        //     // eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
-        //     return Ok(cx.string(""));
-        // } else {
-        //     // Вивести значення вказівника
-        //     eprintln!(
-        //         "Function __w returned valid pointer: {:p}",
-        //         result
-        //     );
-        // }
-
-        // Перевірка на "особливі" значення
+        // Перевірка на null або "особливі" значення
         if result as usize == usize::MAX {
-            // eprintln!("Function __w returned invalid pointer: {:p}", result);
+            eprintln!("Function __read returned invalid pointer: {:p}", result);
             return Ok(cx.string(""));
         }
 
-        let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
+        // Безпечне перетворення на Rust-рядок
+        let result_str = match CStr::from_ptr(result).to_str() {
+            Ok(s) => s.to_owned(),
+            Err(_) => {
+                eprintln!("Function __read returned invalid C string");
+                return Ok(cx.string(""));
+            }
+        };
+
+        // Якщо пам'ять виділяється динамічно, звільняємо її
+        // libc::free(result as *mut libc::c_void);
 
         Ok(cx.string(result_str))
     }
 }
+
 
 fn update_function(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let token = cx.argument::<JsString>(0)?.value(&mut cx);
