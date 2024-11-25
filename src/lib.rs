@@ -68,13 +68,13 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
     let c_token = CString::new(token).expect("Failed to create CString");
 
     unsafe {
-        let result: *const c_char = __read(c_token.as_ptr());
+        let result = __read(c_token.as_ptr());
 
-        if result as usize == 0 {
-            eprintln!("Function __read returned null for input");
+        if result.is_null() {
+            // eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
             return Ok(cx.string(""));
         } else {
-            eprintln!("Function __read returned valid pointer");
+            eprintln!("Function __w returned valid pointer");
         }
 
         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
