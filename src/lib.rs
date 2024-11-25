@@ -71,10 +71,10 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
         let result: *const c_char = __read(c_token.as_ptr());
 
         if result.is_null() {
-            eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
+            eprintln!("Function __read returned null for input");
             return Ok(cx.string(""));
         } else {
-            eprintln!("Function __read returned valid pointer: {:?}", CStr::from_ptr(result).to_string_lossy());
+            eprintln!("Function __read returned valid pointer");
         }
 
         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
