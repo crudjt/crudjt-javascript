@@ -72,7 +72,7 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
 
         if result.is_null() {
             eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
-            return Ok(cx.string("null"));
+            return Ok(cx.string(""));
         } else {
             eprintln!("Function __read returned valid pointer: {:?}", CStr::from_ptr(result).to_string_lossy());
         }
