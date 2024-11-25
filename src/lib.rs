@@ -70,15 +70,21 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
     unsafe {
         let result = __read(c_token.as_ptr());
 
-        if result.is_null() {
-            // eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
+        // if result.is_null() {
+        //     // eprintln!("Function __read returned null for input: {}", c_token.to_string_lossy());
+        //     return Ok(cx.string(""));
+        // } else {
+        //     // Вивести значення вказівника
+        //     eprintln!(
+        //         "Function __w returned valid pointer: {:p}",
+        //         result
+        //     );
+        // }
+
+        // Перевірка на "особливі" значення
+        if result as usize == usize::MAX {
+            eprintln!("Function __w returned invalid pointer: {:p}", result);
             return Ok(cx.string(""));
-        } else {
-            // Вивести значення вказівника
-            eprintln!(
-                "Function __w returned valid pointer: {:p}",
-                result
-            );
         }
 
         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
