@@ -28,10 +28,9 @@ jobs:
 
       - name: Install and build dependencies
         run: |
-          sudo mkdir -p /usr/local/
-          sudo chmod 777 /usr/local/
           npm install
           npm run cargo-build -- --release
+          export DYLD_LIBRARY_PATH=$(pwd)/native/macos/arm64
           node test.js
 
       # # Запуск тестів

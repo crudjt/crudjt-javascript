@@ -29,20 +29,25 @@ fn main() {
     // println!("cargo:rustc-link-lib=dylib=store_jt");
 
 
-    let dylib_path = "./native/macos/arm64/libstore_jt.dylib";
-    let dest_path = "/usr/local/lib/libstore_jt.dylib";
-
-    // Копіюємо файл у /usr/local/lib
-    if Path::new(dylib_path).exists() {
-        fs::copy(dylib_path, dest_path).expect("Failed to copy dylib to /usr/local/libstore_jt.dylib");
-        println!("Library successfully copied to {}", dest_path);
-    } else {
-        eprintln!("Error: Source file does not exist at {}", dylib_path);
-    }
+    // let dylib_path = "./native/macos/arm64/libstore_jt.dylib";
+    // let dest_path = "/usr/local/lib/libstore_jt.dylib";
+    //
+    // // Копіюємо файл у /usr/local/lib
+    // if Path::new(dylib_path).exists() {
+    //     fs::copy(dylib_path, dest_path).expect("Failed to copy dylib to /usr/local/libstore_jt.dylib");
+    //     println!("Library successfully copied to {}", dest_path);
+    // } else {
+    //     eprintln!("Error: Source file does not exist at {}", dylib_path);
+    // }
 
 
     // let dylib_path = "./native/linux/x86_64";
     // // println!("cargo:rustc-env=LD_LIBRARY_PATH={}", dylib_path);
     // println!("cargo:rustc-link-search=native={}", dylib_path);
     // // println!("cargo:rustc-link-lib=store_jt");
+
+    let dylib_path = "./native/macos/arm64";
+    // println!("cargo:rustc-env=LD_LIBRARY_PATH={}", dylib_path);
+    println!("cargo:rustc-link-search=native={}", dylib_path);
+    // println!("cargo:rustc-link-lib=store_jt");
 }
