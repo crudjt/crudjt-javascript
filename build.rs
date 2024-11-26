@@ -29,7 +29,7 @@ fn main() {
     // println!("cargo:rustc-link-lib=dylib=store_jt");
 
 
-    let dylib_path = "./native/macos/x86_64/libstore_jt.dylib";
+    let dylib_path = "./native/macos/arm64/libstore_jt.dylib";
     let dest_path = "/usr/local/lib/libstore_jt.dylib";
 
     // Копіюємо файл у /usr/local/lib
