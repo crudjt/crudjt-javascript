@@ -34,7 +34,7 @@ fn main() {
 
     // Копіюємо файл у /usr/local/lib
     if Path::new(dylib_path).exists() {
-        fs::copy(dylib_path, dest_path).expect("Failed to copy dylib to /lib/local/libstore_jt.dylib");
+        fs::copy(dylib_path, dest_path).expect("Failed to copy dylib to /usr/local/libstore_jt.dylib");
         println!("Library successfully copied to {}", dest_path);
     } else {
         eprintln!("Error: Source file does not exist at {}", dylib_path);
