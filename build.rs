@@ -1,6 +1,9 @@
+// use std::env;
+// use std::fs;
+// use std::path::{Path, PathBuf};
+
+use std::path::Path;
 use std::env;
-use std::fs;
-use std::path::{Path, PathBuf};
 
 fn main() {
     // // Отримуємо шлях до кореня проєкту
@@ -51,7 +54,10 @@ fn main() {
     // println!("cargo:rustc-link-search=native={}", dylib_path);
     // // println!("cargo:rustc-link-lib=store_jt");
 
-    let dylib_path = "./native/windows/x86_64";
-    println!("cargo:rustc-link-search=native={}", dylib_path);
-    println!("cargo:rustc-link-lib=store_jt");
+    // let dylib_path = "./native/windows/x86_64";
+    // println!("cargo:rustc-link-search=native={}", dylib_path);
+    // println!("cargo:rustc-link-lib=store_jt");
+
+    let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    println!("cargo:rustc-link-search=native={}", Path::new(&dir).join("native/windows/x86_64/").display());
 }

@@ -35,8 +35,6 @@ jobs:
         run: |
           npm install
           npm run cargo-build -- --release
-          mkdir -p target/release
-          copy native\windows\x86_64\libstore_jt.dll target\release
           node test.js
 
       # # Запуск тестів
