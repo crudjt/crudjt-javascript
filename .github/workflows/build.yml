@@ -26,10 +26,17 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Setup MSVC environment
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
       - name: Install and build dependencies
         run: |
           npm install
           npm run cargo-build -- --release
+          mkdir -p target/release
+          copy native\windows\x86_64\libstore_jt.dll target\release
           node test.js
 
       # # Запуск тестів
