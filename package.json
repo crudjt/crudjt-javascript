@@ -24,6 +24,6 @@
     "neon-cli": "^0.10.1"
   },
   "files": [
-    "native/macos/arm64/libstore_jt.dylib"
+    "native/windows/x86_64/libstore_jt.dll"
   ]
 }

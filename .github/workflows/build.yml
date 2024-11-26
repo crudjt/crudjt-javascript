@@ -9,10 +9,10 @@ jobs:
         include:
           # - os: ubuntu-latest
           #   arch: x86_64
-          - os: macos-latest
-            arch: aarch64
-          # - os: windows-latest
-          #   arch: x86_64
+          # - os: macos-latest
+          #   arch: aarch64
+          - os: windows-latest
+            arch: x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -30,7 +30,6 @@ jobs:
         run: |
           npm install
           npm run cargo-build -- --release
-          export DYLD_LIBRARY_PATH=$(pwd)/native/macos/arm64
           node test.js
 
       # # Запуск тестів

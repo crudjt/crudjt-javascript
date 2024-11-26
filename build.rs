@@ -46,8 +46,12 @@ fn main() {
     // println!("cargo:rustc-link-search=native={}", dylib_path);
     // // println!("cargo:rustc-link-lib=store_jt");
 
-    let dylib_path = "./native/macos/arm64";
-    // println!("cargo:rustc-env=LD_LIBRARY_PATH={}", dylib_path);
+    // let dylib_path = "./native/macos/arm64";
+    // // println!("cargo:rustc-env=LD_LIBRARY_PATH={}", dylib_path);
+    // println!("cargo:rustc-link-search=native={}", dylib_path);
+    // // println!("cargo:rustc-link-lib=store_jt");
+
+    let dylib_path = "./native/windows/x86_64";
     println!("cargo:rustc-link-search=native={}", dylib_path);
-    // println!("cargo:rustc-link-lib=store_jt");
+    println!("cargo:rustc-link-lib=store_jt");
 }
