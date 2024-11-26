@@ -28,6 +28,8 @@ jobs:
 
       - name: Install and build dependencies
         run: |
+          sudo mkdir -p /usr/local/
+          sudo chmod 777 /usr/local/
           npm install
           npm run cargo-build -- --release
           node test.js
