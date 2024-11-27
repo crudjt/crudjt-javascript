@@ -38,11 +38,6 @@ jobs:
       - name: Build Rust project
         run: cargo build --release
 
-      - name: Set environment variable for DLL path
-        run: |
-          echo "CARGO_MANIFEST_DIR=$(pwd)" >> $GITHUB_ENV
-          echo "PATH=${{ github.workspace }}\\native\\windows\\x86_64\\:$PATH" >> $GITHUB_ENV
-
       - name: Run Node.js test
         run: node test.js
 
