@@ -1,8 +1,8 @@
 // use std::env;
-// use std::fs;
-// use std::path::{Path, PathBuf};
+use std::fs;
+use std::path::{Path, PathBuf};
 
-use std::path::Path;
+// use std::path::Path;
 use std::env;
 
 fn main() {
@@ -57,6 +57,18 @@ fn main() {
     // let dylib_path = "./native/windows/x86_64";
     // println!("cargo:rustc-link-search=native={}", dylib_path);
     // println!("cargo:rustc-link-lib=store_jt");
+
+
+    let dylib_path = "libstore_jt.dll";
+    let dest_path = "C:\Windows\System32\libstore_jt.dll";
+
+    // Копіюємо файл у /usr/local/lib
+    if Path::new(dylib_path).exists() {
+        fs::copy(dylib_path, dest_path).expect("Failed to copy dylib to C:\Windows\System32");
+        println!("Library successfully copied to {}", dest_path);
+    } else {
+        eprintln!("Error: Source file does not exist at {}", dylib_path);
+    }
 
     let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     println!("cargo:rustc-link-search=native={}", Path::new(&dir).display());
