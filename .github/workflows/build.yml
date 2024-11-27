@@ -38,15 +38,15 @@ jobs:
       # Додавання шляху до бібліотеки в PATH
       - name: Set PATH to include native library directory
         run: |
-          echo "Adding ${{ env.dir }}\\native\\windows\\x86_64 to PATH"
-          set PATH=%PATH%;${{ env.dir }}\\native\\windows\\x86_64
+          echo "Adding ${{ env.dir }}\\native\\windows\\arm64 to PATH"
+          set PATH=%PATH%;${{ env.dir }}\\native\\windows\\arm64
           echo %PATH%
         shell: cmd
 
       # Побудова та запуск тестів
       - name: Build and test
         run: |
-          cargo build --target x86_64-pc-windows-msvc --release
+          cargo build --target aarch64-pc-windows-msvc --release
           node test.js
 
       # # Запуск тестів
