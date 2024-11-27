@@ -60,18 +60,17 @@ fn main() {
     // println!("cargo:rustc-link-lib=store_jt");
 
 
-    let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let lib_path = Path::new(&dir).join("native/windows/x86_64/libstore_jt.dll");
+    // let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    // let lib_path = Path::new(&dir).join("native/windows/x86_64/libstore_jt.dll");
+    //
+    // // Копіюємо бібліотеку до папки C:\Windows\System32
+    // let system32_path = Path::new("C:\\Windows\\System32").join("libstore_jt.dll");
+    // if let Err(e) = fs::copy(&lib_path, &system32_path) {
+    //     eprintln!("Failed to copy DLL: {}", e);
+    // } else {
+    //     println!("Successfully copied DLL to System32: {}", system32_path.display());
+    // }
 
-    // Копіюємо бібліотеку до папки C:\Windows\System32
-    let system32_path = Path::new("C:\\Windows\\System32").join("libstore_jt.dll");
-    if let Err(e) = fs::copy(&lib_path, &system32_path) {
-        eprintln!("Failed to copy DLL: {}", e);
-    } else {
-        println!("Successfully copied DLL to System32: {}", system32_path.display());
-    }
-
     let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    println!("cargo:rustc-link-search=native={}", Path::new(&dir).display());
-    println!("cargo:rustc-link-lib=dylib=store_jt");
+    println!("cargo:rustc-link-search=native={}", Path::new(&dir).join("/native/windows/x86_64").display());
 }
