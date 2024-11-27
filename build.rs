@@ -72,7 +72,9 @@ fn main() {
     // }
 
     // let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let system32_dir = env::var("SYSTEM32_DIR").unwrap_or_else(|_| String::from("C:\\Windows\\System32"));
-    println!("cargo:rustc-link-search=native={}", system32_dir);
-    println!("cargo:rustc-link-lib=dylib=store_jt");
+
+
+    // let system32_dir = env::var("SYSTEM32_DIR").unwrap_or_else(|_| String::from("C:\\Windows\\System32"));
+    // println!("cargo:rustc-link-search=native={}", system32_dir);
+    // println!("cargo:rustc-link-lib=dylib=store_jt");
 }

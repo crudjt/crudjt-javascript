@@ -37,14 +37,14 @@ jobs:
 
       - name: Copy DLL to System32
         run: |
-          copy native\windows\x86_64\libstore_jt.lib C:\Windows\System32
+          copy native\windows\x86_64\libstore_jt.dll C:\Windows\System32
 
       - name: Register DLL with regsvr32
         run: |
-          regsvr32 /s C:\Windows\System32\libstore_jt.lib
+          regsvr32 /s C:\Windows\System32\libstore_jt.dll
 
       - name: Build Rust project
-        run: cargo build --release
+        run: npm run cargo-build -- --release
 
       - name: Run Node.js test
         run: node test.js
