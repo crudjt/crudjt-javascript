@@ -5,27 +5,27 @@ use neon::prelude::*;
 use neon::types::buffer::TypedArray;
 use std::ptr;
 
-#[link(name = "store_jt")]
+#[link(name = "store_jt", kind = "dylib")]
 extern {
     pub fn encrypted_key(key: *const std::os::raw::c_char);
 }
 
-#[link(name = "store_jt")]
+#[link(name = "store_jt", kind = "dylib")]
 extern {
     pub fn __create(data: *const u8, len: usize, ttl: i64, silence_read: i32) -> *const c_char;
 }
 
-#[link(name = "store_jt")]
+#[link(name = "store_jt", kind = "dylib")]
 extern {
     pub fn __read(token: *const c_char) -> *const c_char;
 }
 
-#[link(name = "store_jt")]
+#[link(name = "store_jt", kind = "dylib")]
 extern {
     pub fn __update(token: *const c_char, data: *const u8, len: usize, ttl: i64, silence_read: i32) -> *const c_int;
 }
 
-#[link(name = "store_jt")]
+#[link(name = "store_jt", kind = "dylib")]
 extern {
     pub fn __delete(key: *const std::os::raw::c_char) -> *const c_int;
 }
