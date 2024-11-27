@@ -46,7 +46,7 @@ jobs:
       # Побудова та запуск тестів
       - name: Build and test
         run: |
-          npm run cargo-build -- --release
+          cargo build --target x86_64-pc-windows-msvc --release
           node test.js
 
       # # Запуск тестів
