@@ -26,33 +26,11 @@ jobs:
         with:
           node-version: '20'
 
-      # Отримання поточної директорії
-      - name: Get current directory
-        run: echo "dir=$(pwd)" >> $GITHUB_ENV
-        shell: bash
-
       # Встановлення залежностей
       - name: Install dependencies
-        run: npm install
-
-      - name: Copy DLL to System32
         run: |
-          copy native\windows\x86_64\libstore_jt.dll C:\Windows\System32
-
-      - name: Register DLL with regsvr32
-        run: |
-          regsvr32 /s C:\Windows\System32\libstore_jt.dll
-
-      - name: Build Rust project
-        run: npm run cargo-build -- --release
+          npm install
+          npm run cargo-build -- --release
 
       - name: Run Node.js test
         run: node test.js
-
-      # # Запуск тестів
-      # - name: Run tests
-      #   working-directory: ./test-neon-package
-      #   run: |
-      #     mkdir node_modules
-      #     ln -s $(pwd | sed 's/\/[^/]*$//') node_modules/crud_jt
-      #     node test.js

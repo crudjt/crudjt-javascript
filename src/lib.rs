@@ -5,43 +5,67 @@ use neon::prelude::*;
 use neon::types::buffer::TypedArray;
 use std::ptr;
 
-#[link(name = "store_jt")]
-extern {
-    pub fn encrypted_key(key: *const std::os::raw::c_char);
+///
+use libloading::{Library, Symbol};
+use std::sync::{Mutex, Once};
+use lazy_static::lazy_static;
+use std::sync::Arc;
+
+lazy_static! {
+    pub static ref LIB: Library = {
+        unsafe { Library::new("native/windows/x86_64/libstore_jt.dll").expect("Failed to load library") }
+    };
 }
 
-#[link(name = "store_jt")]
-extern {
-    pub fn __create(data: *const u8, len: usize, ttl: i64, silence_read: i32) -> *const c_char;
+fn _encrypted_key(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
+    unsafe {
+        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
+        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"encrypted_key")?;
+        Ok(func(key))
+    }
 }
 
-#[link(name = "store_jt")]
-extern {
-    pub fn __read(token: *const c_char) -> *const c_char;
+fn _create(data: *const u8, len: usize, ttl: i64, silence_read: i32) -> Result<*const c_char, Box<dyn std::error::Error>> {
+    unsafe {
+        let func: libloading::Symbol<unsafe extern fn(*const u8, usize, i64, i32) -> *const c_char> = LIB.get(b"__create")?;
+        Ok(func(data, len, ttl, silence_read))
+    }
 }
 
-#[link(name = "store_jt")]
-extern {
-    pub fn __update(token: *const c_char, data: *const u8, len: usize, ttl: i64, silence_read: i32) -> *const c_int;
+fn _read(token: *const c_char) -> Result<*const c_char, Box<dyn std::error::Error>> {
+    unsafe {
+        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
+        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> *const c_char> = LIB.get(b"__read")?;
+        Ok(func(token))
+    }
 }
 
-#[link(name = "store_jt")]
-extern {
-    pub fn __delete(key: *const std::os::raw::c_char) -> *const c_int;
+fn _update(token: *const c_char, data: *const u8, len: usize, ttl: i64, silence_read: i32) -> Result<*const c_int, Box<dyn std::error::Error>> {
+    unsafe {
+        let func: libloading::Symbol<unsafe extern fn(*const c_char, *const u8, usize, i64, i32) -> *const c_int> = LIB.get(b"__update")?;
+        Ok(func(token, data, len, ttl, silence_read))
+    }
 }
+
+fn _delete(token: *const c_char) -> Result<*const c_int, Box<dyn std::error::Error>> {
+    unsafe {
+        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
+        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> *const c_int> = LIB.get(b"__delete")?;
+        Ok(func(token))
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 fn call_encrypted_key(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let key = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_key = CString::new(key).expect("Failed to create CString");
 
-    unsafe {
-        encrypted_key(c_key.as_ptr());
-    }
-
+    _encrypted_key(c_key.as_ptr()).unwrap();
     Ok(cx.undefined())
 }
 
-fn create_function(mut cx: FunctionContext) -> JsResult<JsString> {
+fn call_create(mut cx: FunctionContext) -> JsResult<JsString> {
     let js_buffer = cx.argument::<JsBuffer>(0)?;
     let data_size = cx.argument::<JsNumber>(1)?;
     let data_usize = data_size.value(&mut cx) as usize;
@@ -55,26 +79,27 @@ fn create_function(mut cx: FunctionContext) -> JsResult<JsString> {
     let data = js_buffer.as_slice(&cx);
     let data_ptr: *const u8 = data.as_ptr();
 
+    let result_ptr = _create(data_ptr, data_usize, ttl_int, silence_read_int).unwrap();
+
     unsafe {
-        let result: *const c_char = __create(data_ptr, data_usize, ttl_int, silence_read_int);
-        let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
+        let result_str = CStr::from_ptr(result_ptr).to_string_lossy().into_owned();
 
         Ok(cx.string(result_str))
     }
 }
 
-fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
+fn call_read(mut cx: FunctionContext) -> JsResult<JsString> {
     let token = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_token = CString::new(token).expect("Failed to create CString");
 
     unsafe {
-        let result = __read(c_token.as_ptr());
+        let result = _read(c_token.as_ptr()).unwrap();
 
-        // Перевірка на "особливі" значення
-        if result as usize == usize::MAX {
-            // eprintln!("Function __w returned invalid pointer: {:p}", result);
-            return Ok(cx.string(""));
-        }
+        // // Перевірка на "особливі" значення
+        // if result as usize == usize::MAX {
+        //     // eprintln!("Function __w returned invalid pointer: {:p}", result);
+        //     return Ok(cx.string(""));
+        // }
 
         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
 
@@ -82,37 +107,7 @@ fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
     }
 }
 
-// fn read_function(mut cx: FunctionContext) -> JsResult<JsString> {
-//     let token = cx.argument::<JsString>(0)?.value(&mut cx);
-//     let c_token = CString::new(token).expect("Failed to create CString");
-//
-//     unsafe {
-//         let result = __read(c_token.as_ptr());
-//
-//         // Перевірка на null або "особливі" значення
-//         if result as usize == usize::MAX {
-//             // eprintln!("Function __read returned invalid pointer: {:p}", result);
-//             return Ok(cx.string(""));
-//         }
-//
-//         // Безпечне перетворення на Rust-рядок
-//         let result_str = match CStr::from_ptr(result).to_str() {
-//             Ok(s) => s.to_owned(),
-//             Err(_) => {
-//                 eprintln!("Function __read returned invalid C string");
-//                 return Ok(cx.string(""));
-//             }
-//         };
-//
-//         // // Якщо пам'ять виділяється динамічно, звільняємо її
-//         // libc::free(result as *mut libc::c_void);
-//
-//         Ok(cx.string(result_str))
-//     }
-// }
-
-
-fn update_function(mut cx: FunctionContext) -> JsResult<JsBoolean> {
+fn call_update(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let token = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_token = CString::new(token).expect("Failed to create CString");
 
@@ -129,32 +124,28 @@ fn update_function(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let data = js_buffer.as_slice(&cx);
     let data_ptr: *const u8 = data.as_ptr();
 
-    unsafe {
-        let output: *const c_int = __update(c_token.as_ptr(), data_ptr, data_usize, ttl_int, silence_read_int);
-        let bool: bool = output as usize == 1;
+    let output: *const c_int = _update(c_token.as_ptr(), data_ptr, data_usize, ttl_int, silence_read_int).unwrap();
+    let bool: bool = output as usize == 1;
 
-        Ok(cx.boolean(bool))
-    }
+    Ok(cx.boolean(bool))
 }
 
 fn call_delete(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let token = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_token = CString::new(token).expect("Failed to create CString");
 
-    unsafe {
-        let output: *const c_int = __delete(c_token.as_ptr());
-        let bool: bool = output as usize == 1;
+    let output: *const c_int = _delete(c_token.as_ptr()).unwrap();
+    let bool: bool = output as usize == 1;
 
-        Ok(cx.boolean(bool))
-    }
+    Ok(cx.boolean(bool))
 }
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("encrypted_key", call_encrypted_key)?;
-    cx.export_function("create", create_function)?;
-    cx.export_function("read", read_function)?;
-    cx.export_function("update", update_function)?;
+    cx.export_function("create", call_create)?;
+    cx.export_function("read", call_read)?;
+    cx.export_function("update", call_update)?;
     cx.export_function("delete", call_delete)?;
 
     Ok(())

@@ -180,6 +180,12 @@ function __delete(token) {
   return native.delete(token);
 }
 
+// native.encrypted_key("414243");
+// let token = create({qwe: 124});
+// read(token);
+// update(token, {sadsad: 324});
+// __delete(token);
+
 const CRUD_JT = {
     create,
     read,

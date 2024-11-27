@@ -4,7 +4,6 @@ version = "0.1.0"
 license = "MIT"
 edition = "2021"
 exclude = ["index.node"]
-build = "build.rs"
 
 [lib]
 crate-type = ["cdylib"]
@@ -12,4 +11,6 @@ crate-type = ["cdylib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+lazy_static = "1.5.0"
+libloading = "0.8.5"
 neon = "1"
