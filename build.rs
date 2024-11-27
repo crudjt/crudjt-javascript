@@ -75,6 +75,18 @@ fn main() {
 
 
     // let system32_dir = env::var("SYSTEM32_DIR").unwrap_or_else(|_| String::from("C:\\Windows\\System32"));
-    println!("cargo:rustc-link-search=native={}", "./target/release");
+
+    // let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    // let lib_path = Path::new(&dir).join("/target/release/");
+    // println!("cargo:rustc-link-search=native={}", lib_path.display());
     // println!("cargo:rustc-link-lib=dylib=store_jt");
+
+
+
+    let dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+
+    println!(
+        "cargo:rustc-link-search=native={}",
+        std::path::Path::new(&dir).join("native/windows/x86_64").display()
+    );
 }
