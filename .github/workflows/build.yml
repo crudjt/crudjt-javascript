@@ -38,6 +38,10 @@ jobs:
       - name: Build Rust project
         run: cargo build --release
 
+      - name: Register DLL with regsvr32
+        run: |
+          regsvr32 /s C:\Windows\System32\libstore_jt.dll
+
       - name: Run Node.js test
         run: node test.js
 
