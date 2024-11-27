@@ -34,10 +34,10 @@ jobs:
       - name: Install and build dependencies
         run: |
           npm install
-          npm run cargo-build -- --release -- -L "$dir\\native\\windows\\x86_64"
+          npm run cargo-build -- --release
           node test.js
         env:
-          LIB: ${{ env.dir }}\\native\\windows\\x86_64
+          PATH: ${{ env.dir }}\\native\\windows\\x86_64;$PATH
 
       # # Запуск тестів
       # - name: Run tests
