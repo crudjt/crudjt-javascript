@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 // use std::path::Path;
 use std::env;
+use std::process::Command;
 
 fn main() {
     // // Отримуємо шлях до кореня проєкту
@@ -59,15 +60,15 @@ fn main() {
     // println!("cargo:rustc-link-lib=store_jt");
 
 
-    let dylib_path = "libstore_jt.dll";
-    let dest_path = "C:\Windows\System32\libstore_jt.dll";
+    let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let lib_path = Path::new(&dir).join("native/windows/x86_64/libstore_jt.dll");
 
-    // Копіюємо файл у /usr/local/lib
-    if Path::new(dylib_path).exists() {
-        fs::copy(dylib_path, dest_path).expect("Failed to copy dylib to C:\Windows\System32");
-        println!("Library successfully copied to {}", dest_path);
+    // Копіюємо бібліотеку до папки C:\Windows\System32
+    let system32_path = Path::new("C:\\Windows\\System32").join("libstore_jt.dll");
+    if let Err(e) = fs::copy(&lib_path, &system32_path) {
+        eprintln!("Failed to copy DLL: {}", e);
     } else {
-        eprintln!("Error: Source file does not exist at {}", dylib_path);
+        println!("Successfully copied DLL to System32: {}", system32_path.display());
     }
 
     let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
