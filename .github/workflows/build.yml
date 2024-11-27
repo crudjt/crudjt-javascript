@@ -27,16 +27,24 @@ jobs:
           node-version: '20'
 
       - name: Get current directory
-        id: current-dir
-        run: echo "dir=$(pwd)" >> $GITHUB_ENV
-        shell: bash
+          id: current-dir
+          run: echo "dir=$(pwd)" >> $GITHUB_ENV
+          shell: bash
 
-      - name: Install and build dependencies
-        run: |
-          set PATH=%PATH%;${{ env.dir }}\\native\\windows\\x86_64
-          npm install
-          npm run cargo-build -- --release
-          node test.js
+        - name: Install dependencies
+          run: npm install
+
+        - name: Set PATH to include native library directory
+          run: |
+            echo "Adding ${{ env.dir }}\\native\\windows\\x86_64 to PATH"
+            set PATH=%PATH%;${{ env.dir }}\\native\\windows\\x86_64
+            echo %PATH%
+          shell: cmd
+
+        - name: Build and test
+          run: |
+            npm run cargo-build -- --release
+            node test.js
 
       # # Запуск тестів
       # - name: Run tests
