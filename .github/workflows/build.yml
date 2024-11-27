@@ -33,7 +33,6 @@ jobs:
 
       - name: Install and build dependencies
         run: |
-          echo "Adding ${{ env.dir }}\\native\\windows\\x86_64 to PATH"
           set PATH=%PATH%;${{ env.dir }}\\native\\windows\\x86_64
           npm install
           npm run cargo-build -- --release
