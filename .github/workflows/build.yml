@@ -35,19 +35,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Додавання шляху до бібліотеки в PATH
-      - name: Set PATH to include native library directory
-        run: |
-          echo "Adding ${{ env.dir }}\\native\\windows\\arm64 to PATH"
-          set PATH=%PATH%;${{ env.dir }}\\native\\windows\\arm64
-          echo %PATH%
-        shell: cmd
+      - name: Build Rust project
+        run: cargo build --release
 
-      # Побудова та запуск тестів
-      - name: Build and test
+      - name: Set environment variable for DLL path
         run: |
-          cargo build --target aarch64-pc-windows-msvc --release
-          node test.js
+          echo "CARGO_MANIFEST_DIR=$(pwd)" >> $GITHUB_ENV
+          echo "PATH=${{ github.workspace }}\\native\\windows\\x86_64\\:$PATH" >> $GITHUB_ENV
+
+      - name: Run Node.js test
+        run: node test.js
 
       # # Запуск тестів
       # - name: Run tests

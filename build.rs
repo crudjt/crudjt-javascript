@@ -59,5 +59,6 @@ fn main() {
     // println!("cargo:rustc-link-lib=store_jt");
 
     let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    println!("cargo:rustc-link-search=native={}", Path::new(&dir).join("native/windows/arm64/").display());
+    println!("cargo:rustc-link-search=native={}", Path::new(&dir).join("native/windows/x86_64/").display());
+    println!("cargo:rustc-link-lib=dylib=store_jt");
 }
