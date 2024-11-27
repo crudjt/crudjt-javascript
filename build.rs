@@ -59,6 +59,6 @@ fn main() {
     // println!("cargo:rustc-link-lib=store_jt");
 
     let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    println!("cargo:rustc-link-search=native={}", Path::new(&dir));
+    println!("cargo:rustc-link-search=native={}", Path::new(&dir).display());
     println!("cargo:rustc-link-lib=dylib=store_jt");
 }
