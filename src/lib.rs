@@ -21,7 +21,7 @@ fn get_library_path() -> PathBuf {
         #[cfg(target_os = "linux")]
         {
             if cfg!(target_arch = "x86_64") {
-                "native/linux/libstore_jt.so"
+                "native/linux/store_jt_x86_64.so"
             } else if cfg!(target_arch = "aarch64") {
                 "native/linux/store_jt_arm64.so"
             } else {
