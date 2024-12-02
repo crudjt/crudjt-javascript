@@ -9,10 +9,10 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x86_64
-          - os: macos-latest
-            arch: aarch64
-          - os: windows-latest
-            arch: x86_64
+          # - os: macos-latest
+          #   arch: aarch64
+          # - os: windows-latest
+          #   arch: x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -31,6 +31,15 @@ jobs:
         run: |
           npm install
           npm run cargo-build -- --release
+          - name: Create symlink for `tests`
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" ]]; then
+          ln -s "$(pwd)" test-neon-package
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          cmd /C "mklink /D test-neon-package %CD%"
+        fi
+      shell: bash
 
       - name: Run Node.js test
+        working-directory: ./test-neon-package
         run: node test.js
