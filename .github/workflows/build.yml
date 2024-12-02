@@ -32,16 +32,12 @@ jobs:
           npm install
           npm run cargo-build -- --release
 
-      - name: Create symlink for `tests`
-        run: |
-          if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" ]]; then
-            ln -s "$(pwd)" test-neon-package
-          elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            cmd /C "mklink /D test-neon-package %CD%"
-          fi
-        shell: bash
+      - name: Create package 'crud_jt'
+        run: npm pack
 
 
       - name: Run Node.js test
         working-directory: ./test-neon-package
-        run: node test.js
+        run: |
+          npm install ../crud_jt-0.1.0.tgz
+          node test.js

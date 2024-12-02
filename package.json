@@ -22,8 +22,5 @@
     "lru-cache": "^11.0.1",
     "msgpack-lite": "^0.1.26",
     "neon-cli": "^0.10.1"
-  },
-  "files": [
-    "native/windows/x86_64/libstore_jt.dll"
-  ]
+  }
 }
