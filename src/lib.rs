@@ -11,9 +11,59 @@ use std::sync::{Mutex, Once};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
+use std::path::{Path, PathBuf};
+
+fn get_library_path() -> PathBuf {
+    let project_root = Path::new(env!("CARGO_MANIFEST_DIR"));
+
+    // Формуємо шлях до бібліотеки залежно від ОС та архітектури
+    let library_subpath = {
+        #[cfg(target_os = "linux")]
+        {
+            if cfg!(target_arch = "x86_64") {
+                "native/linux/libstore_jt.so"
+            } else if cfg!(target_arch = "aarch64") {
+                "native/linux/store_jt_arm64.so"
+            } else {
+                panic!("Unsupported architecture for Linux");
+            }
+        }
+
+        #[cfg(target_os = "macos")]
+        {
+            if cfg!(target_arch = "x86_64") {
+                "native/macos/store_jt_x86_64.dylib"
+            } else if cfg!(target_arch = "aarch64") {
+                "native/macos/store_jt_arm64.dylib"
+            } else {
+                panic!("Unsupported architecture for macOS");
+            }
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            if cfg!(target_arch = "x86_64") {
+                "native/windows/store_jt_x86_64.dll"
+            } else if cfg!(target_arch = "aarch64") {
+                "native/windows/store_jt_arm64.dll"
+            } else {
+                panic!("Unsupported architecture for Windows");
+            }
+        }
+
+        #[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))]
+        {
+            panic!("Unsupported OS");
+        }
+    };
+
+    // Об'єднуємо шлях до проекту з відносним шляхом до бібліотеки
+    project_root.join(library_subpath)
+}
+
 lazy_static! {
     pub static ref LIB: Library = {
-        unsafe { Library::new("native/windows/x86_64/libstore_jt.dll").expect("Failed to load library") }
+        unsafe { Library::new(get_library_path()).expect("Failed to load library") }
     };
 }
 
