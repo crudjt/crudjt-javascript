@@ -1,0 +1,43 @@
+name: Build and Test Node.js Library
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: macos-latest
+            arch: aarch64
+          - os: windows-latest
+            arch: x86_64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # Крок для отримання коду з репозиторію
+      - uses: actions/checkout@v4
+
+      # Налаштування Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Встановлення залежностей
+      - name: Install dependencies
+        run: |
+          npm install
+          npm run cargo-build -- --release
+
+      - name: Create package 'crud_jt'
+        run: npm pack
+
+
+      - name: Run Node.js test
+        working-directory: ./test-neon-package
+        run: |
+          npm install ../crud_jt-0.1.0.tgz
+          node test.js

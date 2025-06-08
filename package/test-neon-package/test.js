@@ -25,10 +25,6 @@ console.log(`CPU: ${os.arch()}`);
 
 // Основна асинхронна функція
 async function main() {
-    CRUD_JT.Config
-      .encrypted_key('Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg==')
-      .start();
-
     // Без metadata
     console.log('Checking without metadata...');
     let data = { user_id: 42, role: 11 };

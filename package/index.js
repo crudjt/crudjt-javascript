@@ -146,7 +146,7 @@ function read(token) {
   }
 
   let result_str = native.read(token);
-  if (result_str === null) {
+  if (result_str === "") {
     return null;
   }
 
@@ -180,39 +180,18 @@ function __delete(token) {
   return native.delete(token);
 }
 
-// const Config = {
-//     encrypted_key: native.encrypted_key,
-//     store_jt_path: native.store_jt_path
-// };
-
-const settings = {};
-
-const Config = {
-    encrypted_key(value) {
-        settings.encrypted_key = value;
-        return this;
-    },
-
-    store_jt_path(value) {
-        settings.store_jt_path = value;
-        return this;
-    },
-
-    start() {
-        if (settings.store_jt_path) {
-            native.store_jt_path(settings.store_jt_path);
-        }
-        native.encrypted_key(settings.encrypted_key);
-    }
-};
+// native.encrypted_key("414243");
+// let token = create({qwe: 124});
+// read(token);
+// update(token, {sadsad: 324});
+// __delete(token);
 
 const CRUD_JT = {
     create,
     read,
     update,
     delete: __delete,
-
-    Config
+    encrypted_key: native.encrypted_key
 };
 
 module.exports = CRUD_JT;

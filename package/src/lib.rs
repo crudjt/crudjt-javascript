@@ -70,14 +70,7 @@ lazy_static! {
 fn _encrypted_key(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
     unsafe {
         // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
-        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"__encrypted_key")?;
-        Ok(func(key))
-    }
-}
-
-fn _store_jt_path(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
-    unsafe {
-        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"__store_jt_path")?;
+        let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"encrypted_key")?;
         Ok(func(key))
     }
 }
@@ -91,13 +84,8 @@ fn _create(data: *const u8, len: usize, ttl: i64, silence_read: i32) -> Result<*
 
 fn _read(token: *const c_char) -> Result<*const c_char, Box<dyn std::error::Error>> {
     unsafe {
+        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
         let func: libloading::Symbol<unsafe extern fn(*const c_char) -> *const c_char> = LIB.get(b"__read")?;
-        let result = func(token);
-
-        if result.is_null() {
-            return Ok(ptr::null());
-        }
-
         Ok(func(token))
     }
 }
@@ -127,14 +115,6 @@ fn call_encrypted_key(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     Ok(cx.undefined())
 }
 
-fn call_store_jt_path(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let key = cx.argument::<JsString>(0)?.value(&mut cx);
-    let c_key = CString::new(key).expect("Failed to create CString");
-
-    _store_jt_path(c_key.as_ptr()).unwrap();
-    Ok(cx.undefined())
-}
-
 fn call_create(mut cx: FunctionContext) -> JsResult<JsString> {
     let js_buffer = cx.argument::<JsBuffer>(0)?;
     let data_size = cx.argument::<JsNumber>(1)?;
@@ -158,17 +138,12 @@ fn call_create(mut cx: FunctionContext) -> JsResult<JsString> {
     }
 }
 
-fn call_read(mut cx: FunctionContext) -> JsResult<JsValue> {
+fn call_read(mut cx: FunctionContext) -> JsResult<JsString> {
     let token = cx.argument::<JsString>(0)?.value(&mut cx);
     let c_token = CString::new(token).expect("Failed to create CString");
 
     unsafe {
         let result = _read(c_token.as_ptr()).unwrap();
-
-        if result.is_null() {
-            // Повертаємо `null` в JavaScript
-            return Ok(cx.null().upcast());
-        }
 
         // // Перевірка на "особливі" значення
         // if result as usize == usize::MAX {
@@ -177,7 +152,8 @@ fn call_read(mut cx: FunctionContext) -> JsResult<JsValue> {
         // }
 
         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
-        Ok(cx.string(result_str).upcast())
+
+        Ok(cx.string(result_str))
     }
 }
 
@@ -217,8 +193,6 @@ fn call_delete(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("encrypted_key", call_encrypted_key)?;
-    cx.export_function("store_jt_path", call_store_jt_path)?;
-
     cx.export_function("create", call_create)?;
     cx.export_function("read", call_read)?;
     cx.export_function("update", call_update)?;
