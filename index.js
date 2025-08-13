@@ -12,6 +12,8 @@ const path = require('path');
 const platform = os.platform(); // 'darwin', 'linux', 'win32'
 const arch = os.arch(); // 'x64', 'arm64', 'ia32', тощо
 
+const ERRORS = require('./errors');
+
 function copyFileWithCheck(srcPath, destPath) {
   try {
     // Перевіряємо існування файлу джерела
@@ -125,19 +127,32 @@ const Validation = require('./Validation');
 const lruCache = new LRUCache((value) => native.read(value));
 
 function create(hash, ttl = -1, silence_read = -1) {
+    if (!Config.wasStarted()) {
+      throw new Error(Validation.errorMessage(Validation.ERROR_NOT_STARTED));
+    }
+
     Validation.validateInsertion(hash, ttl, silence_read);
 
     // Serialize hash into the format Msgpack
     const packedData = msgpack.encode(hash);
+    Validation.validateHashBytesize(packedData.length);
 
     // Call native function create, passing it a pointer and the size of the data
     let token = native.create(packedData, packedData.length, ttl, silence_read);
+    if (!token) {
+      throw new CRUD_JT.Errors.InternalError('Something went wrong. Ups');
+    }
+
     lruCache.insert(token, hash, ttl, silence_read);
 
     return token;
 }
 
 function read(token) {
+  if (!Config.wasStarted()) {
+    throw new Error(Validation.errorMessage(Validation.ERROR_NOT_STARTED));
+  }
+
   Validation.validateToken(token);
 
   let output = lruCache.get(token);
@@ -146,22 +161,42 @@ function read(token) {
   }
 
   let result_str = native.read(token);
-  if (result_str === null) {
+  // if (result_str === null) {
+  //   return null;
+  // }
+  //
+  // let result = JSON.parse(result_str);
+  // lruCache.forceInsert(token, result);
+  //
+  // return result;
+
+  const result = JSON.parse(result_str);
+
+  if (!result.ok) {
+    throw new ERRORS[result.code]();
+  }
+
+  if (result.data == null) { // null або undefined
     return null;
   }
 
-  let result = JSON.parse(result_str);
-  lruCache.forceInsert(token, result);
+  const data = JSON.parse(result.data);
+  lruCache.forceInsert(token, data);
 
-  return result;
+  return data;
 }
 
 function update(token, hash, ttl = -1, silence_read = -1) {
+  if (!Config.wasStarted()) {
+    throw new Error(Validation.errorMessage(Validation.ERROR_NOT_STARTED));
+  }
+
   Validation.validateToken(token);
   Validation.validateInsertion(hash, ttl, silence_read);
 
   // Serialize hash into the format Msgpack
   const packedData = msgpack.encode(hash);
+  Validation.validateHashBytesize(packedData.length);
 
   // Call native function update, passing it a pointer and the size of the data
   let result = native.update(token, packedData, packedData.length, ttl, silence_read);
@@ -173,6 +208,10 @@ function update(token, hash, ttl = -1, silence_read = -1) {
 }
 
 function __delete(token) {
+  if (!Config.wasStarted()) {
+    throw new Error(Validation.errorMessage(Validation.ERROR_NOT_STARTED));
+  }
+
   Validation.validateToken(token);
 
   lruCache.delete(token);
@@ -186,24 +225,49 @@ function __delete(token) {
 // };
 
 const settings = {};
+let wasStarted = false;
 
 const Config = {
-    encrypted_key(value) {
-        settings.encrypted_key = value;
-        return this;
-    },
+  encrypted_key(value) {
+    Validation.validateEncryptedKey(value); // аналог validate_encrypted_key!
+    settings.encrypted_key = value;
+    return this;
+  },
 
-    store_jt_path(value) {
-        settings.store_jt_path = value;
-        return this;
-    },
+  store_jt_path(value) {
+    settings.store_jt_path = value;
+    return this;
+  },
 
-    start() {
-        if (settings.store_jt_path) {
-            native.store_jt_path(settings.store_jt_path);
-        }
-        native.encrypted_key(settings.encrypted_key);
+  wasStarted() {
+    return wasStarted;
+  },
+
+  start() {
+    if (!settings.encrypted_key) {
+      throw new ERRORS[Validation.ERROR_ENCRYPTED_KEY_NOT_SET](
+        Validation.errorMessage(Validation.ERROR_ENCRYPTED_KEY_NOT_SET)
+      );
     }
+
+    if (wasStarted) {
+      throw new ERRORS[Validation.ERROR_ALREADY_STARTED](
+        Validation.errorMessage(Validation.ERROR_ALREADY_STARTED)
+      );
+    }
+
+    // Викликаємо Neon-метод
+    const result = JSON.parse(
+      native.start_store_jt(settings.encrypted_key, settings.store_jt_path)
+    );
+
+    if (!result.ok) {
+      const ErrorClass = ERRORS[result.code] || Error;
+      throw new ErrorClass(result.error_message || 'Unknown error');
+    }
+
+    wasStarted = true;
+  }
 };
 
 const CRUD_JT = {
