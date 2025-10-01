@@ -2,7 +2,6 @@ const CRUD_JT = require('crud_jt');
 const { performance } = require('perf_hooks');
 const os = require('os');
 
-// Функція для рекурсивного сортування об'єктів
 function sortObjectByKeyRecursive(obj) {
     if (typeof obj !== 'object' || obj === null) return obj;
 
@@ -14,22 +13,19 @@ function sortObjectByKeyRecursive(obj) {
     return sorted;
 }
 
-// Функція для перетворення об'єкта на рядок
 function objectToString(obj) {
     return JSON.stringify(sortObjectByKeyRecursive(obj));
 }
 
-// Виводимо ОС
 console.log(`OS: ${process.platform}`);
 console.log(`CPU: ${os.arch()}`);
 
-// Основна асинхронна функція
 async function main() {
     CRUD_JT.Config
       .encrypted_key('Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1yQW3WOes7Gm59UsittLOHR2dciYiwmaYq98l3tG8h9yXVCxg==')
       .start();
 
-    // Без metadata
+    // without metadata
     console.log('Checking without metadata...');
     let data = { user_id: 42, role: 11 };
     let expectedData = sortObjectByKeyRecursive({ data: { ...data } });
@@ -45,7 +41,7 @@ async function main() {
     console.log(CRUD_JT.delete(token) === true);
     console.log(CRUD_JT.read(token) === null);
 
-    // З metadata
+    // with metadata
     console.log('Checking ttl...');
     data = { user_id: 42, role: 11 };
 
@@ -61,7 +57,7 @@ async function main() {
     }
     console.log(CRUD_JT.read(tokenWithttl) === null);
 
-    // Коли ttl закінчився
+    // when expired ttl
     console.log('when expired ttl');
     data = { user_id: 42, role: 11 };
     ttl = 1;
@@ -74,7 +70,7 @@ async function main() {
     console.log(CRUD_JT.update(token, data) === false);
     console.log(CRUD_JT.read(token) === null);
 
-    // З silence_read
+    // with silence_read
     console.log("Checking silence_read...");
     data = { user_id: 42, role: 11 };
     let silence_read = 6;
@@ -87,7 +83,7 @@ async function main() {
     }
     console.log(CRUD_JT.read(tokenWithsilence_read) === null);
 
-    // З ttl і silence_read
+    // with ttl and silence_read
     console.log("Checking ttl and silence_read...");
     data = { user_id: 42, role: 11 };
     ttl = 5;
@@ -96,24 +92,16 @@ async function main() {
     expectedsilence_read = silence_read - 1;
     let tokenWithttlAndsilence_read = CRUD_JT.create(data, ttl, silence_read);
 
-    // let expectedttlAndsilence_read = {
-    //     ttl: expectedttl,
-    //     silence_read: expectedsilence_read,
-    // };
     for (let i = 0; i < silence_read; i++) {
-        // console.log(objectToString(CRUD_JT.read(tokenWithttlAndsilence_read)));
-        // console.log(objectToString({ metadata: { ttl: expectedttl, silence_read: expectedsilence_read }, data: data }));
-        // console.log(objectToString({ metadata: expectedttlAndsilence_read, data: data }));
-
         console.log(objectToString(CRUD_JT.read(tokenWithttlAndsilence_read)) === objectToString({ metadata: { ttl: expectedttl, silence_read: expectedsilence_read }, data: data }));
         expectedttl -= 1;
         expectedsilence_read -= 1;
 
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Затримка 1 секунда
+        await new Promise(resolve => setTimeout(resolve, 1000)); // sleep 1 second
     }
     console.log(CRUD_JT.read(tokenWithttlAndsilence_read) === null);
 
-    // З масштабним навантаженням
+    // with scale load
     const REQUESTS = 40_000;
 
     for (let j = 0; j < 10; j++) {
@@ -133,7 +121,6 @@ async function main() {
 
         console.log('Checking scale load...');
 
-        // Коли q
         console.log('when creates 40k tokens with Turbo Queue');
         let start = performance.now();
         for (let i = 0; i < REQUESTS; i++) {
@@ -141,7 +128,6 @@ async function main() {
         }
         console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
 
-        // Коли w
         console.log('when reads 40k tokens');
         let index = Math.floor(Math.random() * REQUESTS);
         start = performance.now();
@@ -150,7 +136,6 @@ async function main() {
         }
         console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
 
-        // Коли e
         console.log('when updates 40k tokens');
         start = performance.now();
         for (let i = 0; i < REQUESTS; i++) {
@@ -158,7 +143,6 @@ async function main() {
         }
         console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
 
-        // Коли r
         console.log('when deletes 40k tokens');
         start = performance.now();
         for (let i = 0; i < REQUESTS; i++) {
@@ -167,7 +151,6 @@ async function main() {
         console.log(`Elapsed time: ${((performance.now() - start) / 1000).toFixed(3)}`);
     }
 
-    // Коли кеш після w з файлової системи
     console.log('when caches after read from file system');
 
     const ttlGH = 2;
@@ -202,5 +185,4 @@ async function main() {
     }
 }
 
-// Викликаємо основну функцію
 main().catch(console.error);

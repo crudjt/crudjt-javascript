@@ -17,16 +17,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      # Крок для отримання коду з репозиторію
       - uses: actions/checkout@v4
 
-      # Налаштування Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      # Встановлення залежностей
       - name: Install dependencies
         run: |
           npm install
@@ -34,7 +31,6 @@ jobs:
 
       - name: Create package 'crud_jt'
         run: npm pack
-
 
       - name: Run Node.js test
         working-directory: ./test-neon-package

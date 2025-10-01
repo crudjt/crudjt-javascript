@@ -49,7 +49,7 @@ class Validation {
     let decoded;
     try {
       decoded = Buffer.from(key, 'base64');
-      // Перевірка, чи справді рядок був валідним Base64
+
       if (Buffer.from(decoded.toString('base64'), 'base64').length !== decoded.length) {
         throw new Error();
       }
