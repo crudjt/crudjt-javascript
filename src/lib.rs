@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use std::path::{Path, PathBuf};
 
-fn get_library_path() -> PathBuf {
+fn get_library_path() -> Result<PathBuf, String> {
     let project_root = Path::new(env!("CARGO_MANIFEST_DIR"));
 
     let library_subpath = {
@@ -22,7 +22,7 @@ fn get_library_path() -> PathBuf {
             } else if cfg!(target_arch = "aarch64") {
                 "native/linux/store_jt_arm64.so"
             } else {
-                panic!("Unsupported architecture for Linux");
+                return Err("Unsupported architecture for Linux".to_string());
             }
         }
 
@@ -33,7 +33,7 @@ fn get_library_path() -> PathBuf {
             } else if cfg!(target_arch = "aarch64") {
                 "native/macos/store_jt_arm64.dylib"
             } else {
-                panic!("Unsupported architecture for macOS");
+                return Err("Unsupported architecture for macOS".to_string());
             }
         }
 
@@ -44,23 +44,25 @@ fn get_library_path() -> PathBuf {
             } else if cfg!(target_arch = "aarch64") {
                 "native/windows/store_jt_arm64.dll"
             } else {
-                panic!("Unsupported architecture for Windows");
+                return Err("Unsupported architecture for Windows".to_string());
             }
         }
 
         #[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))]
         {
-            panic!("Unsupported OS");
+            return Err("Unsupported OS".to_string());
         }
     };
 
-    project_root.join(library_subpath)
+    Ok(project_root.join(library_subpath))
 }
 
 lazy_static! {
     pub static ref LIB: Result<Library, String> = unsafe {
-        Library::new(get_library_path())
-            .map_err(|e| format!("Failed to load library: {}", e))
+        get_library_path().and_then(|path| {
+            Library::new(path)
+                .map_err(|e| format!("Failed to load library: {}", e))
+        })
     };
 }
 
