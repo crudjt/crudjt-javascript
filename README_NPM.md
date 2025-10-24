@@ -1,6 +1,5 @@
 <p align="center">
-  <img src="logos/crud_jt_logo_black.png#gh-light-mode-only" alt="Logo Light" />
-  <img src="logos/crud_jt_logo.png#gh-dark-mode-only" alt="Logo Dark" />
+  <img src="logos/crud_jt_logo_black.png" alt="Logo Light" />
 </p>
 
 <p align="center">
@@ -160,10 +159,10 @@ Node 20.19.5
 
 | Function | CRUD JT (Javascript) | JWT (Javascript) | redis-session-store (Ruby, Rails 8.0.4) |
 |----------|-------|------|------|
-| C        | `0.335 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 11.182 seconds | 4.057 seconds |
-| R        | `0.007 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 11.639 second | 7.011 seconds |
-| U        | `0.449 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 3.49 seconds |
-| D        | `0.222 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 6.589 seconds |
+| C        | `0.335 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png) | 11.182 seconds | 4.057 seconds |
+| R        | `0.007 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png) | 11.639 second | 7.011 seconds |
+| U        | `0.449 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png) | X | 3.49 seconds |
+| D        | `0.222 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png) | X | 6.589 seconds |
 
 [Full results](https://github.com/exwarvlad/benchmarks)
 
@@ -221,8 +220,7 @@ The library has the following limits and requirements
 
 # Contact & Support
 <p align="center">
-  <img src="logos/crud_jt_logo_favicon_black_160.png#gh-light-mode-only" alt="Visit Light" />
-  <img src="logos/crud_jt_logo_favicon_white_160.png#gh-dark-mode-only" alt="Visit Dark" />
+  <img src="logos/crud_jt_logo_favicon_black_160.png" alt="Visit Light" />
 </p>
 
 - **Custom integrations / new features / collaboration**: support@crudjt.com  

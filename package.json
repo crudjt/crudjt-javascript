@@ -1,7 +1,7 @@
 {
   "name": "crud_jt",
   "version": "1.0.0-beta.0",
-  "description": "",
+  "description": "Simplifies user session. Login / Logout / Authoriztion",
   "main": "index.js",
   "scripts": {
     "test": "cargo test",
@@ -13,7 +13,7 @@
     "build": "npm run cargo-build -- --release",
     "cross": "npm run cross-build -- --release"
   },
-  "author": "",
+  "author": "Vlad Akymov",
   "license": "MIT",
   "devDependencies": {
     "@neon-rs/cli": "0.1.73"
@@ -22,5 +22,9 @@
     "lru-cache": "^11.0.1",
     "msgpack-lite": "^0.1.26",
     "neon-cli": "^0.10.1"
+  },
+  "scripts": {
+    "prepublishOnly": "cp README_NPM.md README.md",
+    "postpublish": "git checkout README.md"
   }
 }
