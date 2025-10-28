@@ -82,6 +82,10 @@ function create(hash, ttl = -1, silence_read = -1) {
       throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
     }
 
+    if (Config.hint_cheatcode() != Config.CHEATCODE) {
+      silence_read = -1;
+    }
+
     CRUD_JT_Validation.validateInsertion(hash, ttl, silence_read);
 
     // Serialize hash into the format Msgpack
@@ -134,6 +138,10 @@ function update(token, hash, ttl = -1, silence_read = -1) {
     throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
   }
 
+  if (Config.hint_cheatcode() != Config.CHEATCODE) {
+    silence_read = -1;
+  }
+
   CRUD_JT_Validation.validateToken(token);
   CRUD_JT_Validation.validateInsertion(hash, ttl, silence_read);
 
@@ -166,6 +174,8 @@ const settings = {};
 let wasStarted = false;
 
 const Config = {
+  CHEATCODE: 'BAGUVIX', // 🐰🥚
+
   encrypted_key(value) {
     CRUD_JT_Validation.validateEncryptedKey(value);
     settings.encrypted_key = value;
@@ -175,6 +185,15 @@ const Config = {
   store_jt_path(value) {
     settings.store_jt_path = value;
     return this;
+  },
+
+  cheatcode(code) {
+    settings.cheatcode = code;
+    return this;
+  },
+
+  hint_cheatcode() {
+    return settings.cheatcode;
   },
 
   wasStarted() {
@@ -202,6 +221,14 @@ const Config = {
     if (!result.ok) {
       const ErrorClass = CRUD_JT_ERRORS[result.code] || Error;
       throw new ErrorClass(result.error_message || 'Unknown error');
+    }
+
+    if (Config.hint_cheatcode() === Config.CHEATCODE) {
+      console.log(
+        "🐰🥚 You have activated optional param silence_read for CRUD_JT on method create\n" +
+        "Ideal for one-time reads, email confirmation links, or limits on the number of operations\n" +
+        "Each read decrements silence_read by 1, when the counter reaches zero — the token is deleted permanently"
+      );
     }
 
     wasStarted = true;
