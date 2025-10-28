@@ -18,13 +18,13 @@
 ##### NPM or (Yarn)
 
 ```sh
-npm install crud_jt
+npm install crudjt
 ```
 
 Require and configure CRUD JT in your project
 
 ```javascript
-const CRUD_JT = require('crud_jt');
+const CRUD_JT = require('crudjt');
 
 // openssl rand -base64 48 # In your terminal
 // => your_encrypted_base64/48
@@ -189,7 +189,7 @@ Stored tokens are placed in the **file system** according to the following order
 You can configure the library before starting it
 
 ```javascript
-const CRUD_JT = require('crud_jt');
+const CRUD_JT = require('crudjt');
 
 // Required configuration
 CRUD_JT.Config.encrypted_key('some_base64_key');
@@ -226,7 +226,7 @@ The library has the following limits and requirements
 </p>
 
 - **Custom integrations / new features / collaboration**: support@crudjt.com  
-- **Library support & bug reports:** [open an issue](https://github.com/crud_jt/crud_jt-ruby/issues)
+- **Library support & bug reports:** [open an issue](https://github.com/crudjt/crudjt-javascript/issues)
 
 
 # License

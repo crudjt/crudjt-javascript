@@ -16,7 +16,6 @@ use std::path::{Path, PathBuf};
 fn get_library_path() -> PathBuf {
     let project_root = Path::new(env!("CARGO_MANIFEST_DIR"));
 
-    // Формуємо шлях до бібліотеки залежно від ОС та архітектури
     let library_subpath = {
         #[cfg(target_os = "linux")]
         {
@@ -57,7 +56,6 @@ fn get_library_path() -> PathBuf {
         }
     };
 
-    // Об'єднуємо шлях до проекту з відносним шляхом до бібліотеки
     project_root.join(library_subpath)
 }
 
@@ -69,7 +67,6 @@ lazy_static! {
 
 fn _encrypted_key(key: *const c_char) -> Result<u32, Box<dyn std::error::Error>> {
     unsafe {
-        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
         let func: libloading::Symbol<unsafe extern fn(*const c_char) -> u32> = LIB.get(b"encrypted_key")?;
         Ok(func(key))
     }
@@ -84,7 +81,6 @@ fn _create(data: *const u8, len: usize, ttl: i64, silence_read: i32) -> Result<*
 
 fn _read(token: *const c_char) -> Result<*const c_char, Box<dyn std::error::Error>> {
     unsafe {
-        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
         let func: libloading::Symbol<unsafe extern fn(*const c_char) -> *const c_char> = LIB.get(b"__read")?;
         Ok(func(token))
     }
@@ -99,7 +95,6 @@ fn _update(token: *const c_char, data: *const u8, len: usize, ttl: i64, silence_
 
 fn _delete(token: *const c_char) -> Result<*const c_int, Box<dyn std::error::Error>> {
     unsafe {
-        // let lib = libloading::Library::new("/path/to/liblibrary.so")?;
         let func: libloading::Symbol<unsafe extern fn(*const c_char) -> *const c_int> = LIB.get(b"__delete")?;
         Ok(func(token))
     }
@@ -144,13 +139,6 @@ fn call_read(mut cx: FunctionContext) -> JsResult<JsString> {
 
     unsafe {
         let result = _read(c_token.as_ptr()).unwrap();
-
-        // // Перевірка на "особливі" значення
-        // if result as usize == usize::MAX {
-        //     // eprintln!("Function __w returned invalid pointer: {:p}", result);
-        //     return Ok(cx.string(""));
-        // }
-
         let result_str = CStr::from_ptr(result).to_string_lossy().into_owned();
 
         Ok(cx.string(result_str))

@@ -1,4 +1,4 @@
-const CRUD_JT = require('crud_jt');
+const CRUD_JT = require('crudjt');
 const { performance } = require('perf_hooks');
 const os = require('os');
 

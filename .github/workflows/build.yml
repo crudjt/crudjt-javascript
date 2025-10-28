@@ -30,11 +30,11 @@ jobs:
           npm install
           npm run cargo-build -- --release
 
-      - name: Create package 'crud_jt'
+      - name: Create package 'crudjt'
         run: npm pack
 
       - name: Run Node.js test
         working-directory: ./test-neon-package
         run: |
-          npm install ../crud_jt-1.0.0-beta.0.tgz
+          npm install ../crudjt-1.0.0-beta.0.tgz
           node test.js
