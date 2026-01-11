@@ -1,5 +1,7 @@
 module.exports = require('./index.node');
 
+const { createStub } = require('./token_service_client');
+
 const fs = require('fs');
 const { promisify } = require('util');
 const sleep = promisify(setTimeout);
@@ -77,13 +79,9 @@ const CRUD_JT_Validation = require('./Validation');
 
 const lruCache = new CRUD_JT_LRUCache((value) => native.read(value));
 
-function create(hash, ttl = -1, silence_read = -1) {
+function original_create(hash, ttl = -1, silence_read = -1) {
     if (!Config.wasStarted()) {
       throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
-    }
-
-    if (Config.hint_cheatcode() != Config.CHEATCODE) {
-      silence_read = -1;
     }
 
     CRUD_JT_Validation.validateInsertion(hash, ttl, silence_read);
@@ -103,7 +101,25 @@ function create(hash, ttl = -1, silence_read = -1) {
     return token;
 }
 
-function read(token) {
+async function create(hash, ttl = -1, silence_read = -1) {
+  if (CRUD_JT.Config.master()) {
+    return original_create(hash, ttl, silence_read);
+  } else {
+    const packed_data = msgpack.encode(hash);
+    const response = await new Promise((resolve, reject) => {
+      CRUD_JT.Config.stub().CreateToken(
+        { packed_data, ttl, silence_read },
+        (err, response) => {
+          if (err) reject(err);
+          else resolve(response);
+        }
+      );
+    });
+    return response.token;
+  }
+}
+
+function original_read(token) {
   if (!Config.wasStarted()) {
     throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
   }
@@ -133,13 +149,27 @@ function read(token) {
   return data;
 }
 
-function update(token, hash, ttl = -1, silence_read = -1) {
+async function read(token) {
+  if (CRUD_JT.Config.master()) {
+    return original_read(token);
+  } else {
+    const response = await new Promise((resolve, reject) => {
+      CRUD_JT.Config.stub().ReadToken(
+        { token },
+        (err, response) => {
+          if (err) reject(err);
+          else resolve(response);
+        }
+      );
+    });
+
+    return msgpack.decode(response.packed_data);
+  }
+}
+
+function original_update(token, hash, ttl = -1, silence_read = -1) {
   if (!Config.wasStarted()) {
     throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
-  }
-
-  if (Config.hint_cheatcode() != Config.CHEATCODE) {
-    silence_read = -1;
   }
 
   CRUD_JT_Validation.validateToken(token);
@@ -158,7 +188,25 @@ function update(token, hash, ttl = -1, silence_read = -1) {
   return result;
 }
 
-function __delete(token) {
+async function update(token, hash, ttl = -1, silence_read = -1) {
+  if (CRUD_JT.Config.master()) {
+    return original_update(token, hash, ttl, silence_read);
+  } else {
+    const packed_data = msgpack.encode(hash);
+    const response = await new Promise((resolve, reject) => {
+      CRUD_JT.Config.stub().UpdateToken(
+        { token, packed_data, ttl, silence_read },
+        (err, response) => {
+          if (err) reject(err);
+          else resolve(response);
+        }
+      );
+    });
+    return response.result;
+  }
+}
+
+function original_delete(token) {
   if (!Config.wasStarted()) {
     throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
   }
@@ -170,38 +218,130 @@ function __delete(token) {
   return native.delete(token);
 }
 
+async function __delete(token) {
+  if (CRUD_JT.Config.master()) {
+    return original_delete(token);
+  } else {
+    const response = await new Promise((resolve, reject) => {
+      CRUD_JT.Config.stub().DeleteToken(
+        { token },
+        (err, response) => {
+          if (err) reject(err);
+          else resolve(response);
+        }
+      );
+    });
+
+    return response.result;
+  }
+}
+
+// ---- Start gRPC interface -----
+const grpc = require('@grpc/grpc-js');
+const protoLoader = require('@grpc/proto-loader');
+const PROTO_PATH = path.join(__dirname, 'token_service.proto');
+
+const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
+  keepCase: true,
+  longs: Number,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+});
+
+const tokenProto = grpc.loadPackageDefinition(packageDefinition).token;
+
+async function startServer(address) {
+  const server = new grpc.Server();
+
+  server.addService(tokenProto.TokenService.service, {
+    CreateToken: createToken,
+    ReadToken: readToken,
+    UpdateToken: updateToken,
+    DeleteToken: deleteToken
+  });
+
+  await new Promise((resolve, reject) => {
+    server.bindAsync(
+      address,
+      grpc.ServerCredentials.createInsecure(),
+      err => {
+        if (err) return reject(err);
+        resolve();
+      }
+    );
+  });
+
+  return server;
+}
+
+
+function createToken(call, callback) {
+  const hash = msgpack.decode(call.request.packed_data);
+  const token = original_create(hash, call.request.ttl, call.request.silence_read);
+
+  callback(null, {
+    token: token
+  });
+}
+
+function readToken(call, callback) {
+  const hash = original_read(call.request.token);
+
+  let packedData = msgpack.encode(hash);
+
+  callback(null, {
+    packed_data: packedData,
+  });
+}
+
+function updateToken(call, callback) {
+  const hash = msgpack.decode(call.request.packed_data);
+  const result = original_update(call.request.token, hash, call.request.ttl, call.request.silence_read);
+
+  callback(null, {
+    result: result
+  });
+}
+
+function deleteToken(call, callback) {
+  const result = original_delete(call.request.token);
+
+  callback(null, {
+    result: result
+  });
+}
+// ---- End gRPC interface
+
 const settings = {};
 let wasStarted = false;
+let server = false;
 
 const Config = {
-  CHEATCODE: 'BAGUVIX', // 🐰🥚
-
-  encrypted_key(value) {
-    CRUD_JT_Validation.validateEncryptedKey(value);
-    settings.encrypted_key = value;
-    return this;
-  },
-
-  store_jt_path(value) {
-    settings.store_jt_path = value;
-    return this;
-  },
-
-  cheatcode(code) {
-    settings.cheatcode = code;
-    return this;
-  },
-
-  hint_cheatcode() {
-    return settings.cheatcode;
-  },
+  _stub: null,
+  GRPC_HOST: '127.0.0.1',
+  GRPC_PORT: 50051,
 
   wasStarted() {
     return wasStarted;
   },
 
-  start() {
-    if (!settings.encrypted_key) {
+  master() {
+    return master;
+  },
+
+  async shutdownServer() {
+    if (!server) {
+      throw new Error('gRPC server is not started');
+    }
+
+    await new Promise(resolve => {
+      server.tryShutdown(resolve);
+    });
+  },
+
+  async startMaster(options = {}) {
+    if (!options.encrypted_key) {
       throw new CRUD_JT_ERRORS[CRUD_JT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET](
         CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET)
       );
@@ -213,9 +353,28 @@ const Config = {
       );
     }
 
-    // Call Neon method
+    CRUD_JT_Validation.validateEncryptedKey(options.encrypted_key);
+
+    const {
+      encrypted_key,
+      store_jt_path,
+      grpc_host = Config.GRPC_HOST,
+      grpc_port = Config.GRPC_PORT
+    } = options;
+
+    this.settings = {
+      encrypted_key,
+      store_jt_path,
+      grpc_host,
+      grpc_port
+    };
+
+    const address = `${grpc_host}:${grpc_port}`;
+
+    server = await startServer(address);
+
     const result = JSON.parse(
-      native.start_store_jt(settings.encrypted_key, settings.store_jt_path)
+      native.start_store_jt(this.settings.encrypted_key, this.settings.store_jt_path)
     );
 
     if (!result.ok) {
@@ -223,15 +382,34 @@ const Config = {
       throw new ErrorClass(result.error_message || 'Unknown error');
     }
 
-    if (Config.hint_cheatcode() === Config.CHEATCODE) {
-      console.log(
-        "🐰🥚 You have activated optional param silence_read for CRUD_JT on method create\n" +
-        "Ideal for one-time reads, email confirmation links, or limits on the number of operations\n" +
-        "Each read decrements silence_read by 1, when the counter reaches zero — the token is deleted permanently"
-      );
-    }
-
+    master = true;
     wasStarted = true;
+  },
+
+  connectToMaster(options = {}) {
+    const {
+      grpc_host = Config.GRPC_HOST,
+      grpc_port = Config.GRPC_PORT
+    } = options;
+
+    this.settings = {
+      grpc_host,
+      grpc_port
+    };
+
+    const address = `${grpc_host}:${grpc_port}`;
+
+    this._stub = createStub(address);
+
+    master = false;
+    wasStarted = true;
+  },
+
+  stub() {
+    if (!this._stub) {
+      throw new Error('Config.connectToMaster() was not called');
+    }
+    return this._stub;
   }
 };
 
