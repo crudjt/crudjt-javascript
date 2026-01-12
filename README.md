@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-  Simplifies user session. Login/Logout/Authorization
+  Fast, file-backed JSON token for REST APIs with multi-process support
 </p>
 
 <p align="center">
@@ -12,6 +12,16 @@
     <img src="logos/buy_me_a_coffee_orange.svg" alt="Buy Me a Coffee"/>
   </a>
 </p>
+
+## Why?  
+[Escape the JWT trap: predictable login, safe logout](https://medium.com/@CoffeeMainer/jwt-trap-login-logout-under-control-7f4495d6024d)
+
+CRUDJT runs a small local coordinator inside your app.
+One process acts as a leader, all others talk to it
+
+## In short
+
+CRUDJT gives you stateful sessions without JWT pain and without distributed complexity
 
 # Installation
 
@@ -21,104 +31,118 @@
 npm install crudjt
 ```
 
-Require and configure CRUD JT in your project
+## How to use
+
+- One process starts the master
+- All other processes connect to it
+
+## Start CRUDJT master (once)
+
+Start the CRUDJT master when your application boots  
+
+Only **one process** should do this  
+The master is responsible for session state and coordination  
+
+### Generate an encrypted key
+
+```sh
+export CRUDJT_ENCRYPTED_KEY=$(openssl rand -base64 48)
+```
 
 ```javascript
-const CRUD_JT = require('crudjt');
+const CRUDJT = require('crudjt');
 
-// openssl rand -base64 48 # In your terminal
-// => your_encrypted_base64/48
-CRUD_JT.Config
-  .encrypted_key('your_encrypted_base64/32/48/64')
-  .store_jt_path('your_path_to_file_storage') // optional
-  .start();
+await CRUDJT.Config.startMaster({
+  encrypted_key: process.env.CRUDJT_ENCRYPTED_KEY,
+  store_jt_path: 'path/to/local/storage', // optional
+  grpc_host: '127.0.0.1', // default
+  grpc_port: 50051 // default
+});
+
+// Use await CRUDJT.Config.shutdownServer(); for stop gRPC server which
+// startMaster function ran above  
 ```
+
+The encrypted key must be the same for all processes
+
+## Connect to an existing CRUDJT master
+
+Use this in all other processes  
+
+Typical examples:
+- multiple local processes
+- background jobs
+- forked processes
+
+```javascript
+const CRUDJT = require('crudjt');
+
+CRUDJT.Config.connectToMaster({
+  grpc_host: '127.0.0.1', // default
+  grpc_port: 50051 // default
+});
+```
+
+### Process layout
+
+App boot  
+ ├─ Process A → start_master  
+ ├─ Process B → connect_to_master  
+ └─ Process C → connect_to_master  
 
 # C
 
 ```javascript
-CRUD_JT.create({ user_id: 42, role: 11 });
-=> 'HBmKFXoXgJ46mCqer1WXyQ'
-```
+const data = { user_id: 42, role: 11 }; // Required
+const ttl = 3600 * 24 * 30; // Optional // Dynamic time to live token in seconds
 
-```javascript
-// with ttl — token time-to-live in seconds
-ttl = 3600 * 24 * 30
+// Optional // Each read decrements silence_read by 1,
+// when the counter reaches zero — the token is deleted permanently
+const silence_read = 10;
 
-CRUD_JT.create({ user_id: 42, role: 11 }, ttl);
-=> 'HBmKFXoXgJ46mCqer1WXyQ'
-```
-
-```javascript
-☕ = 🐰🥚
+const token = await CRUDJT.create(data, ttl, silence_read);
+// token === 'HBmKFXoXgJ46mCqer1WXyQ'
 ```
 
 # R
 
 ```javascript
-// ...
-CRUD_JT.read('HBmKFXoXgJ46mCqer1WXyQ');
-=> { data: { user_id: 42, role: 11 }}
+const result = await CRUDJT.read('HBmKFXoXgJ46mCqer1WXyQ');
+// result === { metadata: { ttl: 101001, silence_read: 9 }, data: { user_id: 42, role: 11 } }
 ```
 
 ```javascript
-// with ttl
-CRUD_JT.read('HBmKFXoXgJ46mCqer1WXyQ');
-=> { metadata: { ttl: 3 }, data: { user_id: 42, role: 11 } }
-
-// after 1 second
-CRUD_JT.read('HBmKFXoXgJ46mCqer1WXyQ');
-=> { metadata: { ttl: 2 }, data: { user_id: 42, role: 11 } }
-
-// still second
-CRUD_JT.read('HBmKFXoXgJ46mCqer1WXyQ');
-=> { metadata: { ttl: 1 }, data: { user_id: 42, role: 11 } }
-
-// ups
-CRUD_JT.read('HBmKFXoXgJ46mCqer1WXyQ');
-=> null
-```
-
-```javascript
-// with 🐰🥚
+// When expired or not found token
+const result = await CRUDJT.read('HBmKFXoXgJ46mCqer1WXyQ');
+// result === null
 ```
 
 # U
 
 ```javascript
-CRUD_JT.update('HBmKFXoXgJ46mCqer1WXyQ', { user_id: 42, role: 8 });
-=> true // { data: { user_id: 42, role: 8} }
+const ttl = 600;
+const silenceRead = 100;
+
+const result = await CRUDJT.update('HBmKFXoXgJ46mCqer1WXyQ', { user_id: 42, role: 8 }, ttl, silenceRead);
+// result === true
 ```
 
 ```javascript
-// supported for ttl
-ttl = 41
-
-CRUD_JT.update('HBmKFXoXgJ46mCqer1WXyQ', { user_id: 42, role: 8 }, ttl);
-=> true // { metadata: { ttl: 41 }, data: { user_id: 42, role: 8 } }
-```
-
-```ruby
-# supported 🐰🥚 update
-```
-
-```javascript
-// when expired/not found token
-CRUD_JT.update('HBmKFXoXgJ46mCqer1WXyQ', { user_id: 42, role: 8 });
-=> false
+// When expired or not found token
+const result = await CRUDJT.update('HBmKFXoXgJ46mCqer1WXyQ', { user_id: 42, role: 8 });
+// result === false
 ```
 
 # D
 ```javascript
-// when token exist
-CRUD_JT.delete('HBmKFXoXgJ46mCqer1WXyQ');
-=> true
+const result = await CRUDJT.delete('HBmKFXoXgJ46mCqer1WXyQ');
+// result === true
 ```
 
 ```javascript
-// when expired/not found token
-CRUD_JT.delete('HBmKFXoXgJ46mCqer1WXyQ');
-=> false
+// When expired or not found token
+const result = await CRUDJT.delete('HBmKFXoXgJ46mCqer1WXyQ');
+// result === false
 ```
 
 # Performance
@@ -126,21 +150,30 @@ CRUD_JT.delete('HBmKFXoXgJ46mCqer1WXyQ');
 ARM64 (Apple M1+), macOS darwin 24.6.0  
 Node 20.19.5
 
-| Function | CRUD JT (Javascript) | JWT (Javascript) | redis-session-store (Ruby, Rails 8.0.4) |
+| Function | CRUDJT (Javascript) | JWT (Javascript) | redis-session-store (Ruby, Rails 8.0.4) |
 |----------|-------|------|------|
 | C        | `0.335 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 11.182 seconds | 4.057 seconds |
 | R        | `0.007 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 11.639 second | 7.011 seconds |
 | U        | `0.449 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 3.49 seconds |
 | D        | `0.222 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | X | 6.589 seconds |
 
-[Full results](https://github.com/exwarvlad/benchmarks)
+[Full benchmark results](https://github.com/exwarvlad/benchmarks)
 
-# Storage (Store JT)
+# Storage (File-backed)  
+Backed by a disk-based B-tree for predictable reads, writes, and deletes
+
+## Disk footprint  
+**40k** tokens of **256 bytes** each — median over 10 creates  
+darwin23, APFS  
+
+`48 MB`  
+
+[Full disk footprint results](https://github.com/Cm7B68NWsMNNYjzMDREacmpe5sI1o0g40ZC9w1y/disk_footprint)
 
 ## Path Lookup Order
 Stored tokens are placed in the **file system** according to the following order
 
-1. Explicitly set via `CRUD_JT.Config.store_jt_path('custom/path/to/file_system_db')`
+1. Explicitly set via `CRUDJT.Config.startMaster({store_jt_path: 'custom/path/to/file_system_db'});`
 2. Default system location
    - **Linux**: `/var/lib/store_jt`
    - **macOS**: `/usr/local/var/store_jt`
@@ -148,35 +181,11 @@ Stored tokens are placed in the **file system** according to the following order
 3. Project root directory (fallback)
 
 ## Storage Characteristics
-* Store JT **automatically removing expired tokens** every 24 hours without blocking the main thread   
-* **Store JT automatically fsyncs every 500ms**, meanwhile tokens ​​are available from cache
-* Store JT is available for one process to open per instance for the time being
+* CRUDJT **automatically removing expired tokens** after start and every 24 hours without blocking the main thread   
+* **Storage automatically fsyncs every 500ms**, meanwhile tokens ​​are available from cache
 
-## Configuration
-
-You can configure the library before starting it
-
-```javascript
-const CRUD_JT = require('crudjt');
-
-// Required configuration
-CRUD_JT.Config.encrypted_key('some_base64_key');
-
-// Optional configuration
-CRUD_JT.Config.store_jt_path('/custom/path/to/store_jt');
-
-// Start the CRUD JT and Store JT
-CRUD_JT.Config.start();
-```
-
-#### `encrypted_key(base64_key)`
-Sets the encrypted key (**required**)
-
-#### `store_jt_path(path_to_db)`
-Overrides the default Store JT path (**optional**)
-
-#### `start()`
-Initializes the CRUD JT and opens the Store JT (**must be called last**)
+# Multi-process Coordination
+For multi-process scenarios, CRUDJT uses gRPC over an insecure local port for same-host communication only. It is not intended for inter-machine or internet-facing usage
 
 # Limits
 The library has the following limits and requirements
@@ -198,8 +207,8 @@ The library has the following limits and requirements
 
 
 # License
-CRUD JT is released under the [MIT License](LICENSE.txt)
+CRUDJT is released under the [MIT License](LICENSE.txt)
 
 <p align="center">
-  💘 Shoot your g . ? Love me out via <a href="https://www.patreon.com/crudjt">Github Sponsors</a>!
+  💘 Shoot your g . ? Love me out via <a href="https://www.patreon.com/crudjt">Patreon Sponsors</a>!
 </p>
