@@ -379,6 +379,7 @@ const Config = {
 
     if (!result.ok) {
       const ErrorClass = CRUDJT_ERRORS[result.code] || Error;
+      await CRUDJT.Config.shutdownServer();
       throw new ErrorClass(result.error_message || 'Unknown error');
     }
 
