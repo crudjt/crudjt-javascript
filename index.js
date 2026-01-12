@@ -356,14 +356,12 @@ const Config = {
     CRUDJT_Validation.validateEncryptedKey(options.encrypted_key);
 
     const {
-      encrypted_key,
       store_jt_path,
       grpc_host = Config.GRPC_HOST,
       grpc_port = Config.GRPC_PORT
     } = options;
 
     this.settings = {
-      encrypted_key,
       store_jt_path,
       grpc_host,
       grpc_port
@@ -374,7 +372,7 @@ const Config = {
     server = await startServer(address);
 
     const result = JSON.parse(
-      native.start_store_jt(this.settings.encrypted_key, this.settings.store_jt_path)
+      native.start_store_jt(options.encrypted_key, this.settings.store_jt_path)
     );
 
     if (!result.ok) {
