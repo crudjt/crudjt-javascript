@@ -12,7 +12,7 @@ const path = require('path');
 const platform = os.platform(); // 'darwin', 'linux', 'win32'
 const arch = os.arch(); // 'x64', 'arm64', 'ia32', etc
 
-const CRUD_JT_ERRORS = require('./errors');
+const CRUDJT_ERRORS = require('./errors');
 
 function getSourcePath() {
   let archDir;
@@ -74,26 +74,26 @@ function getTargetPath() {
 const native = require('.'); // Require the compiled native module
 const msgpack = require('msgpack-lite');
 const { Buffer } = require('buffer');
-const CRUD_JT_LRUCache = require('./Cache');
-const CRUD_JT_Validation = require('./Validation');
+const CRUDJT_LRUCache = require('./Cache');
+const CRUDJT_Validation = require('./Validation');
 
-const lruCache = new CRUD_JT_LRUCache((value) => native.read(value));
+const lruCache = new CRUDJT_LRUCache((value) => native.read(value));
 
 function original_create(hash, ttl = -1, silence_read = -1) {
     if (!Config.wasStarted()) {
-      throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
+      throw new Error(CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_NOT_STARTED));
     }
 
-    CRUD_JT_Validation.validateInsertion(hash, ttl, silence_read);
+    CRUDJT_Validation.validateInsertion(hash, ttl, silence_read);
 
     // Serialize hash into the format Msgpack
     const packedData = msgpack.encode(hash);
-    CRUD_JT_Validation.validateHashBytesize(packedData.length);
+    CRUDJT_Validation.validateHashBytesize(packedData.length);
 
     // Call native function create, passing it a pointer and the size of the data
     let token = native.create(packedData, packedData.length, ttl, silence_read);
     if (!token) {
-      throw new CRUD_JT.Errors.InternalError('Something went wrong. Ups');
+      throw new CRUDJT.Errors.InternalError('Something went wrong. Ups');
     }
 
     lruCache.insert(token, hash, ttl, silence_read);
@@ -102,12 +102,12 @@ function original_create(hash, ttl = -1, silence_read = -1) {
 }
 
 async function create(hash, ttl = -1, silence_read = -1) {
-  if (CRUD_JT.Config.master()) {
+  if (CRUDJT.Config.master()) {
     return original_create(hash, ttl, silence_read);
   } else {
     const packed_data = msgpack.encode(hash);
     const response = await new Promise((resolve, reject) => {
-      CRUD_JT.Config.stub().CreateToken(
+      CRUDJT.Config.stub().CreateToken(
         { packed_data, ttl, silence_read },
         (err, response) => {
           if (err) reject(err);
@@ -121,10 +121,10 @@ async function create(hash, ttl = -1, silence_read = -1) {
 
 function original_read(token) {
   if (!Config.wasStarted()) {
-    throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
+    throw new Error(CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_NOT_STARTED));
   }
 
-  CRUD_JT_Validation.validateToken(token);
+  CRUDJT_Validation.validateToken(token);
 
   let output = lruCache.get(token);
   if (output) {
@@ -136,7 +136,7 @@ function original_read(token) {
   const result = JSON.parse(result_str);
 
   if (!result.ok) {
-    throw new CRUD_JT_ERRORS[result.code]();
+    throw new CRUDJT_ERRORS[result.code]();
   }
 
   if (result.data == null) {
@@ -150,11 +150,11 @@ function original_read(token) {
 }
 
 async function read(token) {
-  if (CRUD_JT.Config.master()) {
+  if (CRUDJT.Config.master()) {
     return original_read(token);
   } else {
     const response = await new Promise((resolve, reject) => {
-      CRUD_JT.Config.stub().ReadToken(
+      CRUDJT.Config.stub().ReadToken(
         { token },
         (err, response) => {
           if (err) reject(err);
@@ -169,15 +169,15 @@ async function read(token) {
 
 function original_update(token, hash, ttl = -1, silence_read = -1) {
   if (!Config.wasStarted()) {
-    throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
+    throw new Error(CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_NOT_STARTED));
   }
 
-  CRUD_JT_Validation.validateToken(token);
-  CRUD_JT_Validation.validateInsertion(hash, ttl, silence_read);
+  CRUDJT_Validation.validateToken(token);
+  CRUDJT_Validation.validateInsertion(hash, ttl, silence_read);
 
   // Serialize hash into the format Msgpack
   const packedData = msgpack.encode(hash);
-  CRUD_JT_Validation.validateHashBytesize(packedData.length);
+  CRUDJT_Validation.validateHashBytesize(packedData.length);
 
   // Call native function update, passing it a pointer and the size of the data
   let result = native.update(token, packedData, packedData.length, ttl, silence_read);
@@ -189,12 +189,12 @@ function original_update(token, hash, ttl = -1, silence_read = -1) {
 }
 
 async function update(token, hash, ttl = -1, silence_read = -1) {
-  if (CRUD_JT.Config.master()) {
+  if (CRUDJT.Config.master()) {
     return original_update(token, hash, ttl, silence_read);
   } else {
     const packed_data = msgpack.encode(hash);
     const response = await new Promise((resolve, reject) => {
-      CRUD_JT.Config.stub().UpdateToken(
+      CRUDJT.Config.stub().UpdateToken(
         { token, packed_data, ttl, silence_read },
         (err, response) => {
           if (err) reject(err);
@@ -208,10 +208,10 @@ async function update(token, hash, ttl = -1, silence_read = -1) {
 
 function original_delete(token) {
   if (!Config.wasStarted()) {
-    throw new Error(CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_NOT_STARTED));
+    throw new Error(CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_NOT_STARTED));
   }
 
-  CRUD_JT_Validation.validateToken(token);
+  CRUDJT_Validation.validateToken(token);
 
   lruCache.delete(token);
 
@@ -219,11 +219,11 @@ function original_delete(token) {
 }
 
 async function __delete(token) {
-  if (CRUD_JT.Config.master()) {
+  if (CRUDJT.Config.master()) {
     return original_delete(token);
   } else {
     const response = await new Promise((resolve, reject) => {
-      CRUD_JT.Config.stub().DeleteToken(
+      CRUDJT.Config.stub().DeleteToken(
         { token },
         (err, response) => {
           if (err) reject(err);
@@ -342,18 +342,18 @@ const Config = {
 
   async startMaster(options = {}) {
     if (!options.encrypted_key) {
-      throw new CRUD_JT_ERRORS[CRUD_JT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET](
-        CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET)
+      throw new CRUDJT_ERRORS[CRUDJT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET](
+        CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET)
       );
     }
 
     if (wasStarted) {
-      throw new CRUD_JT_ERRORS[CRUD_JT_Validation.ERROR_ALREADY_STARTED](
-        CRUD_JT_Validation.errorMessage(CRUD_JT_Validation.ERROR_ALREADY_STARTED)
+      throw new CRUDJT_ERRORS[CRUDJT_Validation.ERROR_ALREADY_STARTED](
+        CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_ALREADY_STARTED)
       );
     }
 
-    CRUD_JT_Validation.validateEncryptedKey(options.encrypted_key);
+    CRUDJT_Validation.validateEncryptedKey(options.encrypted_key);
 
     const {
       encrypted_key,
@@ -378,7 +378,7 @@ const Config = {
     );
 
     if (!result.ok) {
-      const ErrorClass = CRUD_JT_ERRORS[result.code] || Error;
+      const ErrorClass = CRUDJT_ERRORS[result.code] || Error;
       throw new ErrorClass(result.error_message || 'Unknown error');
     }
 
@@ -413,7 +413,7 @@ const Config = {
   }
 };
 
-const CRUD_JT = {
+const CRUDJT = {
     create,
     read,
     update,
@@ -422,4 +422,4 @@ const CRUD_JT = {
     Config
 };
 
-module.exports = CRUD_JT;
+module.exports = CRUDJT;
