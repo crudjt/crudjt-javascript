@@ -1,3 +1,7 @@
+// This binding was generated automatically to ensure consistency across languages
+// Generated using ChatGPT (GPT-5) from the canonical Ruby SDK
+// API is stable and production-ready
+
 const U64_MAX = BigInt(2) ** BigInt(64) - BigInt(1);
 
 const MAX_HASH_SIZE = 256;
