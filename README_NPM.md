@@ -119,10 +119,11 @@ const result = await CRUDJT.read('HBmKFXoXgJ46mCqer1WXyQ');
 # U
 
 ```javascript
+const data = { user_id: 42, role: 8 };
 const ttl = 600;
 const silenceRead = 100;
 
-const result = await CRUDJT.update('HBmKFXoXgJ46mCqer1WXyQ', { user_id: 42, role: 8 }, ttl, silenceRead);
+const result = await CRUDJT.update('HBmKFXoXgJ46mCqer1WXyQ', data, ttl, silenceRead);
 // result === true
 ```
 
