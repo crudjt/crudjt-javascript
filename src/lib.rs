@@ -135,46 +135,41 @@ fn _delete(token: *const c_char) -> Result<*const c_int, Box<dyn std::error::Err
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 fn call_start_store_jt(mut cx: FunctionContext) -> JsResult<JsString> {
     let encrypted_key = cx.argument::<JsString>(0)?.value(&mut cx);
-
     let c_encrypted_key = match CString::new(encrypted_key) {
         Ok(c) => c,
-        Err(e) => return cx.throw_error(format!("Failed to create CString: {}", e)),
+        Err(e) => return cx.throw_error(format!("Failed to create CString for key: {}", e)),
     };
 
-    let path_to_db = match cx.argument_opt(1) {
-            Some(arg) => {
-                if let Ok(js_str) = arg.downcast::<JsString, _>(&mut cx) {
-                    Some(js_str.value(&mut cx))
-                } else {
-                    None
+    let c_path_to_db_opt: Option<CString> = match cx.argument_opt(1) {
+        Some(arg) => {
+            if let Ok(js_str) = arg.downcast::<JsString, _>(&mut cx) {
+                match CString::new(js_str.value(&mut cx)) {
+                    Ok(c) => Some(c),
+                    Err(e) => return cx.throw_error(format!("Failed to create CString for path_to_db: {}", e)),
                 }
+            } else {
+                None
             }
-            None => None,
-        };
-
-    let c_path_to_db = match path_to_db {
-        Some(ref s) => {
-            let cstr = match CString::new(s.as_str()) {
-                Ok(c) => c,
-                Err(e) => return cx.throw_error(format!("Failed to create CString: {}", e)),
-            };
-            cstr.as_ptr()
         }
-        None => std::ptr::null(),
+        None => None,
     };
+
+    let c_path_to_db = c_path_to_db_opt
+        .as_ref()
+        .map_or(std::ptr::null(), |c| c.as_ptr());
 
     let result_ptr = match _start_store_jt(c_encrypted_key.as_ptr(), c_path_to_db) {
         Ok(ptr) => ptr,
-        Err(e) => {
-            return cx.throw_error(format!("_start_store_jt failed: {}", e));
-        }
+        Err(e) => return cx.throw_error(format!("_start_store_jt failed: {}", e)),
     };
 
-    unsafe {
-        let result_str = CStr::from_ptr(result_ptr).to_string_lossy().into_owned();
-
-        Ok(cx.string(result_str))
+    if result_ptr.is_null() {
+        return cx.throw_error("_start_store_jt returned null");
     }
+
+    let result_str = unsafe { CStr::from_ptr(result_ptr).to_string_lossy().into_owned() };
+
+    Ok(cx.string(result_str))
 }
 
 fn call_create(mut cx: FunctionContext) -> JsResult<JsString> {
