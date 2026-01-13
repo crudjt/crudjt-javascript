@@ -59,8 +59,8 @@ await CRUDJT.Config.startMaster({
   grpc_port: 50051 // default
 });
 
-// Use await CRUDJT.Config.shutdownServer(); for stop gRPC server which
-// startMaster function ran above  
+// Use await CRUDJT.Config.shutdownServer() to shut down the gRPC server and let
+// the process exit
 ```
 
 The encrypted key must be the same for all processes
@@ -93,14 +93,15 @@ App boot
 # C
 
 ```javascript
-const data = { user_id: 42, role: 11 }; // Required
-const ttl = 3600 * 24 * 30; // Optional // Dynamic time to live token in seconds
+const data = { user_id: 42, role: 11 }; // required
+const ttl = 3600 * 24 * 30; // optional: token lifetime (seconds)
 
-// Optional // Each read decrements silence_read by 1,
-// when the counter reaches zero — the token is deleted permanently
-const silence_read = 10;
+// Optional: read limit
+// Each read decrements the counter
+// When it reaches zero — the token is deleted
+const silenceRead = 10;
 
-const token = await CRUDJT.create(data, ttl, silence_read);
+const token = await CRUDJT.create(data, ttl, silenceRead);
 // token === 'HBmKFXoXgJ46mCqer1WXyQ'
 ```
 
