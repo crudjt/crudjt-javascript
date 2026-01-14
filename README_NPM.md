@@ -104,6 +104,17 @@ const token = await CRUDJT.create(data, ttl, silenceRead);
 // token === 'HBmKFXoXgJ46mCqer1WXyQ'
 ```
 
+```javascript
+const data = { user_id: 42, role: 11 };
+
+// To disable token expiration or read limits, pass `-1`
+const token = await CRUDJT.create(
+  data,
+  -1, // disable TTL
+  -1  // disable read limit
+);
+```
+
 # R
 
 ```javascript
@@ -121,6 +132,8 @@ const result = await CRUDJT.read('HBmKFXoXgJ46mCqer1WXyQ');
 
 ```javascript
 const data = { user_id: 42, role: 8 };
+
+// -1 disables limits
 const ttl = 600;
 const silenceRead = 100;
 
