@@ -165,6 +165,9 @@ const result = await CRUDJT.delete('HBmKFXoXgJ46mCqer1WXyQ');
 ARM64 (Apple M1+), macOS darwin 24.6.0  
 Node 20.19.5
 
+Measured in the master process (in-process execution)  
+No gRPC, network, or serialization overhead is included  
+
 | Function | CRUDJT (Javascript) | JWT (Javascript) | redis-session-store (Ruby, Rails 8.0.4) |
 |----------|-------|------|------|
 | C        | `0.335 second` ![Logo Favicon Light](logos/crud_jt_logo_favicon_white.png#gh-light-mode-only) ![Logo Favicon Dark](logos/crud_jt_logo_favicon_black.png#gh-dark-mode-only) | 11.182 seconds | 4.057 seconds |
