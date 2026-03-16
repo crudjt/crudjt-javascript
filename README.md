@@ -63,7 +63,7 @@ await CRUDJT.Config.startMaster({
 // the process exit
 ```
 
-The secret key must be the same for all processes
+*Important: Use the same `secret_key` across all sessions. If the key changes, previously stored tokens cannot be decrypted and will return `null` or `false`*  
 
 ## Connect to an existing CRUDJT master
 
@@ -162,7 +162,6 @@ const result = await CRUDJT.delete('HBmKFXoXgJ46mCqer1WXyQ');
 > Metrics will be published after 1.0.0-beta GitHub Actions builds
 
 # Storage (File-backed)  
-Backed by a disk-based B-tree for predictable reads, writes, and deletes
 
 ## Disk footprint  
 > Metrics will be published after 1.0.0-beta GitHub Actions builds
