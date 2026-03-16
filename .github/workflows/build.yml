@@ -34,6 +34,8 @@ jobs:
         run: npm pack
 
       - name: Run Node.js test
+        env:
+          CRUDJT_AUTOTEST_ALLOWED: true
         working-directory: ./test-neon-package
         run: |
           npm install ../crudjt-1.0.0-beta.0.tgz

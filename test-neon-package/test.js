@@ -21,6 +21,11 @@ function objectToString(obj) {
     return JSON.stringify(sortObjectByKeyRecursive(obj));
 }
 
+if (process.env.CRUDJT_AUTOTEST_ALLOWED !== 'true') {
+  console.log("Denied run autotest for this environment. Set CRUDJT_AUTOTEST_ALLOWED='true'");
+  return;
+}
+
 console.log(`OS: ${process.platform}`);
 console.log(`CPU: ${os.arch()}`);
 
