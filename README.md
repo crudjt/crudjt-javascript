@@ -43,11 +43,13 @@ Only **one process** should do this
 The master is responsible for session state and coordination  
 All functions can also be used directly from it
 
-### Generate a new secret key
+### Generate a new secret key (terminal)
 
 ```sh
 export CRUDJT_SECRET_KEY=$(openssl rand -base64 48)
 ```
+
+### Start master (JavaScript)
 
 ```javascript
 const CRUDJT = require('crudjt');
