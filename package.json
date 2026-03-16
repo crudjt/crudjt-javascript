@@ -1,7 +1,7 @@
 {
   "name": "crudjt",
   "version": "1.0.0-beta.0",
-  "description": "Simplifies user session. Login / Logout / Authoriztion",
+  "description": "Fast B-tree–backed token store for stateful sessions",
   "main": "index.js",
   "scripts": {
     "test": "cargo test",
@@ -13,7 +13,7 @@
     "build": "npm run cargo-build -- --release",
     "cross": "npm run cross-build -- --release"
   },
-  "author": "Vlad Akymov",
+  "author": "Vlad Akymov (v_akymov)",
   "license": "MIT",
   "devDependencies": {
     "@neon-rs/cli": "0.1.73"
@@ -24,5 +24,18 @@
     "lru-cache": "^11.0.1",
     "msgpack-lite": "^0.1.26",
     "neon-cli": "^0.10.1"
+  },
+  "keywords": [
+    "token",
+    "session",
+    "authentication",
+    "authorization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crudjt/crudjt-js"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
