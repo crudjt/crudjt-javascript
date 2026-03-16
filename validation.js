@@ -8,12 +8,12 @@ const MAX_HASH_SIZE = 256;
 
 const ERROR_ALREADY_STARTED = 0;
 const ERROR_NOT_STARTED = 1;
-const ERROR_ENCRYPTED_KEY_NOT_SET = 2;
+const ERROR_SECRET_KEY_NOT_SET = 2;
 
 const ERROR_MESSAGES = {
   [ERROR_ALREADY_STARTED]: 'CRUDJT already started',
   [ERROR_NOT_STARTED]: 'CRUDJT has not started',
-  [ERROR_ENCRYPTED_KEY_NOT_SET]: 'Encrypted key is blank'
+  [ERROR_SECRET_KEY_NOT_SET]: 'Secret key is blank'
 };
 
 
@@ -49,7 +49,7 @@ class Validation {
     }
   }
 
-  static validateEncryptedKey(key) {
+  static validateSecretKey(key) {
     let decoded;
     try {
       decoded = Buffer.from(key, 'base64');
@@ -58,11 +58,11 @@ class Validation {
         throw new Error();
       }
     } catch {
-      throw new TypeError(`'encrypted_key' must be a valid Base64 string`);
+      throw new TypeError(`'secret_key' must be a valid Base64 string`);
     }
 
     if (![32, 48, 64].includes(decoded.length)) {
-      throw new TypeError(`'encrypted_key' must be exactly 32, 48, or 64 bytes. Got ${decoded.length} bytes`);
+      throw new TypeError(`'secret_key' must be exactly 32, 48, or 64 bytes. Got ${decoded.length} bytes`);
     }
 
     return true;

@@ -345,9 +345,9 @@ const Config = {
   },
 
   async startMaster(options = {}) {
-    if (!options.encrypted_key) {
-      throw new CRUDJT_ERRORS[CRUDJT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET](
-        CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_ENCRYPTED_KEY_NOT_SET)
+    if (!options.secret_key) {
+      throw new CRUDJT_ERRORS[CRUDJT_Validation.ERROR_SECRET_KEY_NOT_SET](
+        CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_SECRET_KEY_NOT_SET)
       );
     }
 
@@ -357,7 +357,7 @@ const Config = {
       );
     }
 
-    CRUDJT_Validation.validateEncryptedKey(options.encrypted_key);
+    CRUDJT_Validation.validateSecretKey(options.secret_key);
 
     const {
       store_jt_path,
@@ -376,7 +376,7 @@ const Config = {
     server = await startServer(address);
 
     const result = JSON.parse(
-      native.start_store_jt(options.encrypted_key, this.settings.store_jt_path)
+      native.start_store_jt(options.secret_key, this.settings.store_jt_path)
     );
 
     if (!result.ok) {
