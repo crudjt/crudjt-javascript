@@ -78,7 +78,7 @@ async function main() {
     console.log("Checking silence_read...");
     data = { user_id: 42, role: 11 };
     let silence_read = 6;
-    let tokenWithsilence_read = await CRUDJT.create(data, -1, silence_read);
+    let tokenWithsilence_read = await CRUDJT.create(data, null, silence_read);
 
     let expectedsilence_read = silence_read - 1;
     for (let i = 0; i < silence_read; i++) {

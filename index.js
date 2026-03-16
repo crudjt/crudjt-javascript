@@ -83,12 +83,15 @@ const CRUDJT_Validation = require('./Validation');
 
 const lruCache = new CRUDJT_LRUCache((value) => native.read(value));
 
-function original_create(hash, ttl = -1, silence_read = -1) {
+function original_create(hash, ttl = null, silence_read = null) {
     if (!Config.wasStarted()) {
       throw new Error(CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_NOT_STARTED));
     }
 
     CRUDJT_Validation.validateInsertion(hash, ttl, silence_read);
+
+    ttl = ttl || -1;
+    silence_read = silence_read || -1;
 
     // Serialize hash into the format Msgpack
     const packedData = msgpack.encode(hash);
@@ -105,7 +108,10 @@ function original_create(hash, ttl = -1, silence_read = -1) {
     return token;
 }
 
-async function create(hash, ttl = -1, silence_read = -1) {
+async function create(hash, ttl = null, silence_read = null) {
+  ttl = ttl || -1;
+  silence_read = silence_read || -1;
+
   if (CRUDJT.Config.master()) {
     return original_create(hash, ttl, silence_read);
   } else {
@@ -171,13 +177,16 @@ async function read(token) {
   }
 }
 
-function original_update(token, hash, ttl = -1, silence_read = -1) {
+function original_update(token, hash, ttl = null, silence_read = null) {
   if (!Config.wasStarted()) {
     throw new Error(CRUDJT_Validation.errorMessage(CRUDJT_Validation.ERROR_NOT_STARTED));
   }
 
   CRUDJT_Validation.validateToken(token);
   CRUDJT_Validation.validateInsertion(hash, ttl, silence_read);
+
+  ttl = ttl || -1;
+  silence_read = silence_read || -1;
 
   // Serialize hash into the format Msgpack
   const packedData = msgpack.encode(hash);
@@ -192,7 +201,10 @@ function original_update(token, hash, ttl = -1, silence_read = -1) {
   return result;
 }
 
-async function update(token, hash, ttl = -1, silence_read = -1) {
+async function update(token, hash, ttl = null, silence_read = null) {
+  ttl = ttl || -1;
+  silence_read = silence_read || -1;
+
   if (CRUDJT.Config.master()) {
     return original_update(token, hash, ttl, silence_read);
   } else {
