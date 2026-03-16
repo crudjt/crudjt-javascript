@@ -125,7 +125,7 @@ async function main() {
 
         console.log('Checking scale load...');
 
-        console.log('when creates 40k tokens with Turbo Queue');
+        console.log('when creates 40k tokens');
         let start = performance.now();
         for (let i = 0; i < REQUESTS; i++) {
             tokens.push(await CRUDJT.create(data));
