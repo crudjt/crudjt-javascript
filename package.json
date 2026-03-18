@@ -1,6 +1,6 @@
 {
   "name": "crudjt",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "Fast B-tree–backed token store for stateful sessions",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/crudjt/crudjt-js"
+    "url": "https://github.com/crudjt/crudjt-javascript"
   },
   "engines": {
     "node": ">=18"
