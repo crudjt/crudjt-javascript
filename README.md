@@ -4,9 +4,12 @@
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/crudjt/crudjt-ruby/master/logos/crudjt_logo_dark_on_white.svg">
     <img alt="Shows a dark logo" src="https://raw.githubusercontent.com/crudjt/crudjt-ruby/master/logos/crudjt_logo_dark.png">
   </picture>
-    </br>
-    JavaScript SDK for the fast, file-backed, scalable JSON token engine
 </p>
+
+<p align="center">
+  JavaScript SDK for the fast, file-backed, scalable JSON token engine
+</p>
+
 
 <p align="center">
   <a href="https://www.patreon.com/crudjt">
