@@ -44,7 +44,9 @@ Start the CRUDJT master when your application boots
 Only **one process** should do this  
 
 The master is responsible for session state and coordination  
-All functions can also be used directly from it
+All functions can also be used directly from it  
+
+For containerized deployments, see: [Start CRUDJT master in Docker](#start-crudjt-master-in-docker)
 
 ### Generate a new secret key (terminal)
 
