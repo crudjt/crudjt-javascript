@@ -332,6 +332,7 @@ function deleteToken(call, callback) {
 const settings = {};
 let wasStarted = false;
 let server = false;
+let master = null;
 
 const Config = {
   _stub: null,
