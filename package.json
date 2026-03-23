@@ -1,6 +1,6 @@
 {
   "name": "crudjt",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "description": "Fast B-tree–backed token store for stateful sessions",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "debug": "npm run cargo-build --",
     "build": "npm run cargo-build -- --release",
     "cross": "npm run cross-build -- --release",
-    "install": "npm run cargo-build -- --release"
+    "install": "cargo build --release --message-format=json-render-diagnostics > cargo.log && neon dist < cargo.log"
   },
   "author": "Vlad Akymov (v_akymov)",
   "license": "MIT",
