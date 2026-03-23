@@ -8,8 +8,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "crudjt": "file:../crudjt-1.0.0-beta.3.tgz"
-  }
+  "description": ""
 }

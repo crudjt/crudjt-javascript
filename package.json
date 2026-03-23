@@ -1,6 +1,6 @@
 {
   "name": "crudjt",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "description": "Fast B-tree–backed token store for stateful sessions",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,8 @@
     "postcross-build": "neon dist -m /target < cross.log",
     "debug": "npm run cargo-build --",
     "build": "npm run cargo-build -- --release",
-    "cross": "npm run cross-build -- --release"
+    "cross": "npm run cross-build -- --release",
+    "install": "npm run cargo-build -- --release"
   },
   "author": "Vlad Akymov (v_akymov)",
   "license": "MIT",
