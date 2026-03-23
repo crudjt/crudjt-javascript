@@ -1,6 +1,6 @@
 {
   "name": "crudjt",
-  "version": "1.0.0-beta.7",
+  "version": "1.0.0-beta.8",
   "description": "Fast B-tree–backed token store for stateful sessions",
   "main": "index.js",
   "scripts": {
@@ -11,14 +11,12 @@
   },
   "author": "Vlad Akymov (v_akymov)",
   "license": "MIT",
-  "devDependencies": {
-    "@neon-rs/cli": "0.1.73"
-  },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0",
     "lru-cache": "^11.0.1",
-    "msgpack-lite": "^0.1.26"
+    "msgpack-lite": "^0.1.26",
+    "@neon-rs/cli": "0.1.73"
   },
   "keywords": [
     "token",
