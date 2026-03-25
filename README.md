@@ -72,7 +72,7 @@ await CRUDJT.Config.startMaster({
 
 *Important: Use the same `secret_key` across all sessions. If the key changes, previously stored tokens cannot be decrypted and will return `null` or `false`*  
 
-## Start CRUDJT master in Docker
+### Start CRUDJT master in Docker
 
 Create a `docker-compose.yml` file:
 
