@@ -10,15 +10,11 @@
   JavaScript SDK for the fast, file-backed, scalable JSON token engine
 </p>
 
-
 <p align="center">
   <a href="https://www.patreon.com/crudjt">
     <img src="https://github.com/crudjt/crudjt-ruby/raw/master/logos/buy_me_a_coffee_orange.svg" alt="Buy Me a Coffee"/>
   </a>
 </p>
-
-> ⚠️ Version 1.0.0-beta — production testing phase   
-> API is stable. Feedback is welcome before the final 1.0.0 release
 
 Fast B-tree–backed token store for stateful user sessions  
 Provides authentication and authorization across multiple processes  
@@ -207,6 +203,8 @@ In-process benchmark; Redis accessed via localhost TCP
 | R        | `0.010 second` <picture> <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_white_on_dark_for_github_table_even_col.svg" width=16 height=16> <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_dark_on_white_for_github_table_even_col.svg" width=16 height=16> <img alt="Shows a favicon black on white color" src="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_white_on_dark.png" width=16 height=16> </picture>   | 16.678 seconds | 4.436 seconds |
 | U        | `0.470 second` <picture> <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_white_on_dark.svg" width=16 height=16> <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_dark_on_white.svg" width=16 height=16> <img alt="Shows a favicon black on white color" src="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_white_on_dark.png" width=16 height=16> </picture>   | X | 2.124 seconds |
 | D        | `0.199 second` <picture> <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_white_on_dark_for_github_table_even_col.svg" width=16 height=16> <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_160x160_dark_on_white_for_github_table_even_col.svg" width=16 height=16> <img alt="Shows a favicon black on white color" src="https://raw.githubusercontent.com/crudjt/crudjt/refs/heads/master/logos/crudjt_favicon_white_on_dark.png" width=16 height=16> </picture>   | X | 3.984 seconds |
+
+*Benchmarks shown here are from a previous version of CRUDJT. For current performance metrics, see the [GitHub repository](https://github.com/crudjt/crudjt-javascript)*
 
 [Full benchmark results](https://github.com/crudjt/benchmarks)
 
